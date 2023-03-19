@@ -15,3 +15,5 @@
     User-Agent = "Parse Android SDK API Level 28"
     X-Parse-Installation-Id = "37968e71-a4b9-4550-b1c2-843084dff4ee"
     Content-Type = "application/json"
+    Origin = "https://api.efur.app"
+    Referer = "https://api.efur.app"
