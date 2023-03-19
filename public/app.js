@@ -2,7 +2,8 @@ Parse.initialize("MiGt7yG9h5WAf7zXRsDHp");
 Parse.serverURL = "https://api.efur.app/parse";
 
 var AppData = {
-	mode: 2
+	mode: 2,
+	posts: []
 };
 
 var View = {
@@ -22,6 +23,11 @@ var View = {
 		v.classList.add("hiddenview");
 		p.classList.remove("hiddenview");
 		p.classList.add("view");
+	},
+	get: function(id) {
+		var q = document.querySelector("#doc" + id);
+		if (q) return q;
+		return document.querySelector("view:not(.hiddenview)");
 	}
 }
 
@@ -47,48 +53,56 @@ async function login(skipLogin) {
 
 async function feed() {
 	View.switch("new");
-	AppData.posts = await Parse.Cloud.run("getNewPosts");
-	for (var i = 0; i < AppData.posts.p.length; i++) {
-		AppData.posts.p[i] = unpackObject(AppData.posts.p[i]);
-		AppData.posts.p[i].u = unpackObject(AppData.posts.p[i].u);
-	}
+	AppData.lastDate = await loadPosts();
+	View.get().addEventListener("scroll", () => {
+		console.log("E");
+	});
+}
 
-	for (var i = 0; i < AppData.posts.p.length; i++) {
+async function loadPosts() {
+	var posts = await Parse.Cloud.run("getNewPosts");
+	for (var i = 0; i < posts.p.length; i++) {
+		posts.p[i] = unpackObject(posts.p[i]);
+		posts.p[i].u = unpackObject(posts.p[i].u);
+		posts.p[i].p = unpackObject(posts.p[i].p);
+	}
+	for (var i = 0; i < posts.p.length; i++) {
+		AppData.posts.push(posts.p[i]);
 		// post data
-		var id = AppData.posts.p[i].id;
-		var rating = AppData.posts.p[i].r; // 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
-		var title = AppData.posts.p[i].f;
-		var content = AppData.posts.p[i].g;
-		var desc = AppData.posts.p[i].i;
-		var source = AppData.posts.p[i].s;
-		var artist = AppData.posts.p[i].e;
-		var categories = AppData.posts.p[i].c;
-		var tags = AppData.posts.p[i].t;
+		var id = posts.p[i].id;
+		var rating = posts.p[i].r; // 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+		var title = posts.p[i].f;
+		var content = posts.p[i].g;
+		var desc = posts.p[i].i;
+		var source = posts.p[i].s;
+		var artist = posts.p[i].e;
+		var categories = posts.p[i].c;
+		var tags = posts.p[i].t;
 		var image = undefined;
 		var video = undefined;
-		if (AppData.posts.p[i].data) {
-			image = AppData.posts.p[i].data.p;
-			video = AppData.posts.p[i].data.v;
+		if (posts.p[i].data) {
+			image = posts.p[i].data.p;
+			video = posts.p[i].data.v;
 		}
 		var options = [];
 		var qstn = undefined;
 		var votes = undefined;
 		var multi = false;
-		if (AppData.posts.p[i].p) {
-			for (var x = 0; x < AppData.posts.p[i].p.o.length; x++) {
+		if (posts.p[i].p) {
+			for (var x = 0; x < posts.p[i].p.o.length; x++) {
 				options.push({
-					text: AppData.posts.p[i].p.o[x],
-					amount: AppData.posts.p[i].p["s" + x]
+					text: posts.p[i].p.o[x],
+					amount: posts.p[i].p["s" + x]
 				});
 			}
-			qstn = AppData.posts.p[i].p.q;
-			votes = AppData.posts.p[i].p.s;
-			multi = AppData.posts.p[i].p.v;
+			qstn = posts.p[i].p.q;
+			votes = posts.p[i].p.s;
+			multi = posts.p[i].p.v;
 		}
 
 		// user data
-		var pfp = AppData.posts.p[i].u.i ? AppData.posts.p[i].u.i.t : "resources/user_icon.png";
-		var name = AppData.posts.p[i].u.username;
+		var pfp = posts.p[i].u.i ? posts.p[i].u.i.t : "resources/user_icon.png";
+		var name = posts.p[i].u.username;
 		var uprofile = (rating == 0 ? [] : (rating == 1 ? ["SUGGESTIVE"] : ["EXPLICIT"]));
 		for (var x = 0; x < categories.length; x++) {
 			for (var y = 0; y < AppData.config.categories.length; y++) {
@@ -227,16 +241,19 @@ async function feed() {
 			var btn = document.createElement("button");
 			btn.className = "votebtn";
 			btn.innerText = "VOTE";
-			btn.onclick = ((o, votes, multi) => function() {
+			btn.onclick = ((o, votes, multi, id, btn) => function() {
 				var send = [];
 				if (multi) {
 					for (var x = 0; x < o.length; x++) {
-						if (o[x].b.classList.contains("active")) send.push(o[x]);
+						if (o[x].b.classList.contains("active")) send.push(x);
 					}
 				}
 				for (var x = 0; x < o.length; x++) {
 					if (!multi && o[x].b.classList.contains("active")) {
-						// send data (single)
+						Parse.Cloud.run("voteOnPoll", {
+							p: id,
+							v: [x]
+						});
 					}
 					o[x].a.innerText = Math.round(+o[x].d.getAttribute("data-value") / votes * 100) + "%";
 					o[x].c.classList.add("discovered");
@@ -244,14 +261,18 @@ async function feed() {
 					o[x].d.classList.remove("hidden");
 					o[x].d.value = 0;
 					setTimeout(((v, d) => () => {
-					d.value = v;
+						d.value = v;
 					})(v, o[x].d), 1);
 					o[x].e.onclick = undefined;
 				}
 				if (multi) {
-					// send data (multi)
+					Parse.Cloud.run("voteOnPoll", {
+						p: id,
+						v: send
+					});
 				}
-			})(o, votes, multi);
+				poll.removeChild(btn);
+			})(o, votes, multi, posts.p[i].p.id, btn);
 			poll.appendChild(btn);
 			var item = document.createElement("p");
 			item.className = "voteamount";
@@ -285,6 +306,7 @@ async function feed() {
 }
 
 function unpackObject(obj) {
+	if (!obj || !obj.attributes) return;
 	var a = obj.attributes;
 	var k = Object.keys(a);
 	for (var i = 0; i < k.length; i++) obj[k[i]] = a[k[i]];
