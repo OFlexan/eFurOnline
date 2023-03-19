@@ -1,3 +1,6 @@
+Parse.initialize("MiGt7yG9h5WAf7zXRsDHp");
+Parse.serverURL = "http://api.efur.app/parse";
+
 var AppData = {
 	mode: 2
 };
@@ -22,107 +25,75 @@ var View = {
 	}
 }
 
-async function login(skipLoad) {
+async function login(skipLogin) {
 	View.switch("load");
 	document.querySelector("#loadstatus").innerText = "Initializing";
 	document.querySelector("#loadbar").value = 25;
 	
-	var email = document.querySelector("input[type=email]").value;
-	var passw = document.querySelector("input[type=password]").value;
-	AppData.account = await fetch("https://efur.flexan.cf/parse/login", {
-		body: JSON.stringify({
-			_method: "GET",
-			username: email,
-			password: passw
-		}),
-		method: "POST"
-	}).then((j) => j.json());
-	AppData.token = AppData.account.sessionToken;
-	
-	document.querySelector("#loadstatus").innerText = "Fetching account";
-	document.querySelector("#loadbar").value = 50;
-	// todo: fetch account
+	if (!AppData.user && !skipLogin) {
+		AppData.user = await Parse.User.logIn(document.querySelector("input[type=email]").value, document.querySelector("input[type=password]").value);
+	}
 
 	document.querySelector("#loadstatus").innerText = "Fetching configuration";
 	document.querySelector("#loadbar").value = 75;
-	AppData.config = await fetch("https://efur.flexan.cf/parse/config", {
-		headers: {
-			"X-Parse-Session-Token": AppData.token
-		}
-	}).then((j) => j.json());
-	AppData.settings = await fetch("https://efur.flexan.cf/parse/functions/getUserSettings", {
-		headers: {
-			"X-Parse-Session-Token": AppData.token
-		},
-		body: JSON.stringify({
-			z: 85
-		}),
-		method: "POST"
-	}).then((j) => j.json());
+	AppData.config = (await Parse.Config.get()).attributes;
 	
 	document.querySelector("#loadstatus").innerText = "Fetching account settings";
 	document.querySelector("#loadbar").value = 100;
-	// todo: fetch account settings
-
-	if (!skipLoad) AppData.posts = await fetch("https://efur.flexan.cf/parse/functions/getNewPosts", {
-		headers: {
-			"X-Parse-Session-Token": AppData.token
-		},
-		body: JSON.stringify({
-			d: Date.now(),
-			r: AppData.mode, // 0 = SFW (max safe), 2 = NSFW (max explicit)
-			z: 85
-		}),
-		method: "POST"
-	}).then((j) => j.json());
+	AppData.settings = await Parse.Cloud.run("getUserSettings");
 
 	feed();
 }
 
 async function feed() {
 	View.switch("new");
+	AppData.posts = await Parse.Cloud.run("getNewPosts");
+	for (var i = 0; i < AppData.posts.p.length; i++) {
+		AppData.posts.p[i] = unpackObject(AppData.posts.p[i]);
+		AppData.posts.p[i].u = unpackObject(AppData.posts.p[i].u);
+	}
 
-	for (var i = 0; i < AppData.posts.result.p.length; i++) {
+	for (var i = 0; i < AppData.posts.p.length; i++) {
 		// post data
-		var id = AppData.posts.result.p[i].objectId;
-		var rating = AppData.posts.result.p[i].r; // 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
-		var title = AppData.posts.result.p[i].f;
-		var content = AppData.posts.result.p[i].g;
-		var desc = AppData.posts.result.p[i].i;
-		var source = AppData.posts.result.p[i].s;
-		var artist = AppData.posts.result.p[i].e;
-		var categories = AppData.posts.result.p[i].c; // located in AppData.config.params.categories
-		var tags = AppData.posts.result.p[i].t;
+		var id = AppData.posts.p[i].id;
+		var rating = AppData.posts.p[i].r; // 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+		var title = AppData.posts.p[i].f;
+		var content = AppData.posts.p[i].g;
+		var desc = AppData.posts.p[i].i;
+		var source = AppData.posts.p[i].s;
+		var artist = AppData.posts.p[i].e;
+		var categories = AppData.posts.p[i].c;
+		var tags = AppData.posts.p[i].t;
 		var image = undefined;
 		var video = undefined;
-		if (AppData.posts.result.p[i].data) {
-			image = AppData.posts.result.p[i].data.p;
-			video = AppData.posts.result.p[i].data.v;
+		if (AppData.posts.p[i].data) {
+			image = AppData.posts.p[i].data.p;
+			video = AppData.posts.p[i].data.v;
 		}
 		var options = [];
 		var qstn = undefined;
 		var votes = undefined;
 		var multi = false;
-		if (AppData.posts.result.p[i].p) {
-			for (var x = 0; x < AppData.posts.result.p[i].p.o.length; x++) {
+		if (AppData.posts.p[i].p) {
+			for (var x = 0; x < AppData.posts.p[i].p.o.length; x++) {
 				options.push({
-					text: AppData.posts.result.p[i].p.o[x],
-					amount: AppData.posts.result.p[i].p["s" + x]
+					text: AppData.posts.p[i].p.o[x],
+					amount: AppData.posts.p[i].p["s" + x]
 				});
 			}
-			qstn = AppData.posts.result.p[i].p.q;
-			votes = AppData.posts.result.p[i].p.s;
-			multi = AppData.posts.result.p[i].p.v;
+			qstn = AppData.posts.p[i].p.q;
+			votes = AppData.posts.p[i].p.s;
+			multi = AppData.posts.p[i].p.v;
 		}
 
 		// user data
-		var pfp = AppData.posts.result.p[i].u.i ? AppData.posts.result.p[i].u.i.t : "resources/user_icon.png";
-		var name = AppData.posts.result.p[i].u.username;
+		var pfp = AppData.posts.p[i].u.i ? AppData.posts.p[i].u.i.t : "resources/user_icon.png";
+		var name = AppData.posts.p[i].u.username;
 		var uprofile = (rating == 0 ? [] : (rating == 1 ? ["SUGGESTIVE"] : ["EXPLICIT"]));
 		for (var x = 0; x < categories.length; x++) {
-			for (var y = 0; y < AppData.config.params.categories.length; y++) {
-				if (AppData.config.params.categories[y].i == categories[x]) {
-					uprofile.push(AppData.config.params.categories[y].n);
+			for (var y = 0; y < AppData.config.categories.length; y++) {
+				if (AppData.config.categories[y].i == categories[x]) {
+					uprofile.push(AppData.config.categories[y].n);
 				}
 			}
 		}
@@ -312,3 +283,13 @@ async function feed() {
 		document.querySelector("#posts").appendChild(post);
 	}
 }
+
+function unpackObject(obj) {
+	var a = obj.attributes;
+	var k = Object.keys(a);
+	for (var i = 0; i < k.length; i++) obj[k[i]] = a[k[i]];
+	return obj;
+}
+
+AppData.user = Parse.User.current();
+if (AppData.user) login(true);

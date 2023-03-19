@@ -163,6 +163,8 @@ div.poll {
   padding: 4px;
   border-bottom-left-radius: 12px;
   border-bottom-right-radius: 12px;
+  margin: 0 -5px;
+  width: calc(100% + 10px);
 }
 
 div.polloption {
