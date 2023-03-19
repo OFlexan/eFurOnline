@@ -1,0 +1,279 @@
+@import url("https://fonts.googleapis.com/css?family=Nunito");
+
+@keyframes radio-select {
+  0% {transform: scale(0);}
+  50% {transform: scale(1.7);}
+  100% {transform: scale(1);}
+}
+
+
+app {
+  aspect-ratio: 28 / 53;
+  height: 100%;
+  overflow-x: hidden;
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+app::-webkit-scrollbar {
+  display: none;
+}
+
+info, view.hiddenview, .hidden {
+  display: none !important;
+}
+
+
+
+body, html {
+  background-color: #13171B;
+  color: white;
+  width: 100%;
+  margin: 0;
+  font-family: "Nunito", sans-serif;
+  font-size: 14px;
+  user-select: none;
+}
+
+body::-webkit-scrollbar {
+  display: none;
+}
+
+div.post {
+  padding: 4px 5px;
+  margin-bottom: 10px;
+  border-top: 1px solid #222931;
+  border-bottom: 1px solid #222931;
+  border-radius: 12px;
+  background-color: #171A1f;
+}
+
+img.image, video.video {
+  max-width: calc(100% + 10px);
+  min-width: calc(100% + 10px);
+  margin: 0 -5px;
+}
+
+img.phpfp {
+  max-width: 40px;
+  max-height: 40px;
+  float: left;
+  margin-right: 8px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+p.phname {
+  font-size: 17px;
+}
+
+p.phuprofile, p.desctitle {
+  font-size: 14px;
+}
+
+p.desc, p.phuprofile, p.artist, p.voteamount, button.votebtn {
+  color: #B1B1B1;
+}
+
+p.desctitle {
+  color: #7B7B7B;
+}
+
+p.phname, p.phuprofile {
+  margin: 0;
+}
+
+p.desc, p.desctitle, p.artist, p.content, p.title, p.votetitle {
+  margin: 0;
+  clear: left;
+}
+
+p.content {
+  font-size: 17px;
+}
+
+p.title, p.votetitle {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+p.title {
+  text-align: center;
+}
+
+p.votetitle {
+  margin-left: 6px;
+}
+
+div.header {
+  position: sticky;
+  height: 60px;
+  background-color: #1B2024;
+  z-index: 9999;
+  width: 100%;
+  top: 0;
+  font-size: 24px;
+  padding: 0 25px;
+}
+
+div.header p {
+  margin: 0;
+  margin-left: 60px;
+  line-height: 60px;
+}
+
+#sidemenu {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+div#posts {
+  position: absolute;
+  top: 60px;
+  width: 100%;
+}
+
+view#docload {
+  background-image: url("resources/app_logo_tiled.png");
+  width: 100%;
+  height: 100%;
+  display: block;
+  text-align: center;
+  padding: 5px;
+}
+
+view#docload p {
+  margin: 0;
+}
+
+view#docload img {
+  position: absolute;
+  bottom: 40px;
+  height: 40px;
+  left: 50%;
+  transform: translate(-50%, 0);
+}
+
+
+
+div.poll {
+  background-color: #13171B;
+  padding: 4px;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+div.polloption {
+  cursor: pointer;
+	transition: background-color .1s linear;
+  border-radius: 8px;
+}
+
+div.polloption:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+p.votepct {
+  display: block;
+  margin: 0;
+  text-align: center;
+  transform: translate(calc(-50% + 23px));
+}
+
+div.voteopt {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #B1B1B1;
+  border-radius: 50%;
+  float: left;
+  margin-top: 7px;
+  margin-left: 10px;
+  margin-right: 14px;
+}
+
+div.voteopt.active {
+  border: 2px solid #CFB640;
+}
+
+div.voteopt.multi {
+  border-radius: 4px;
+}
+
+div.voteoptin {
+  width: 12px;
+  height: 12px;
+  background-color: #B1B1B1;
+  border-radius: 50%;
+  top: calc(50% - 6px);
+  left: calc(50% - 6px);
+  position: absolute;
+	transition: transform .1s linear;
+  transform: scale(0);
+}
+
+div.voteoptin:not(.disabled) {
+  background-color: #CFB640;
+  transform: scale(1);
+}
+
+div.voteoptin.multi {
+  width: 8px;
+  height: 8px;
+  border: 2px solid #CFB640;
+  border-radius: 0;
+  top: calc(50% - 6px);
+  left: calc(50% - 6px);
+}
+
+p.vote {
+  margin: 0;
+}
+
+p.vote.discovered {
+  transform: translate(0, -19px);
+}
+
+progress.voteprgs {
+  transform: translate(0, -15px);
+  width: calc(100% - 58px) !important;
+}
+
+progress {
+  border-radius: 7px;
+  height: 5px;
+  width: 100%;
+}
+
+progress::-webkit-progress-bar {
+  background-color: transparent;
+  border-radius: 7px;
+}
+
+progress::-webkit-progress-value {
+  background-color: #CFB640;
+  border-radius: 7px;
+  transition: width 0.5s ease;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+button.votebtn {
+  margin-top: 12px;
+  border: none;
+  border-radius: 5px;
+  background-color: #2E2E2E;
+  width: 100%;
+  padding: 12px 0;
+  cursor: pointer;
+	transition: background-color .1s linear;
+}
+
+button.votebtn:hover {
+  background-color: #353535;
+}

@@ -1,0 +1,17 @@
+[build]
+  functions = "src"
+  publish = "public"
+
+[[redirects]]
+  from = "/parse/*"
+  to = "https://api.efur.app/parse/:splat"
+  status = 200
+  force = true
+  [redirects.headers]
+    X-Parse-Application-Id = "MiGt7yG9h5WAf7zXRsDHp"
+    X-Parse-App-Build-Version = "85"
+    X-Parse-App-Display-Version = "1.18.1"
+    X-Parse-OS-Version = "9"
+    User-Agent = "Parse Android SDK API Level 28"
+    X-Parse-Installation-Id = "37968e71-a4b9-4550-b1c2-843084dff4ee"
+    Content-Type = "application/json"
