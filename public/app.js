@@ -1,5 +1,5 @@
 Parse.initialize("MiGt7yG9h5WAf7zXRsDHp");
-Parse.serverURL = "http://efur.flexan.cf/parse";
+Parse.serverURL = "http://api.efur.app/parse";
 
 var AppData = {
 	mode: 2
