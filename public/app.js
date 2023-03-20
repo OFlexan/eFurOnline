@@ -36,6 +36,7 @@ var View = {
 }
 
 async function login(skipLogin) {
+	if (document.querySelector("#safemode").checked) AppData.mode = 0;
 	View.switch("load");
 	document.querySelector("#loadstatus").innerText = "Initializing";
 	document.querySelector("#loadbar").value = 25;
