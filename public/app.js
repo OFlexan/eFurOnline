@@ -3,7 +3,11 @@ Parse.serverURL = "https://api.efur.app/parse";
 
 var AppData = {
 	mode: 2,
-	posts: []
+	posts: [],
+	version: {
+	  i: 94,
+	  t: "1.19.1"
+	}
 };
 
 var View = {
@@ -53,14 +57,19 @@ async function login(skipLogin) {
 
 async function feed() {
 	View.switch("new");
-	AppData.lastDate = await loadPosts();
-	View.get().addEventListener("scroll", () => {
-		console.log("E");
-	});
+	AppData.lastDate = await loadPosts(AppData.lastDate);
+	var t = false;
+	document.querySelector("app").onscroll = async () => {
+		if (!t && document.querySelector("app").scrollTop + window.innerHeight >= document.querySelector("app").scrollHeight - 2000) {
+		  t = true;
+		  AppData.lastDate = await loadPosts(AppData.lastDate);
+		  t = false;
+		}
+	};
 }
 
-async function loadPosts() {
-	var posts = await Parse.Cloud.run("getNewPosts");
+async function loadPosts(date) {
+	var posts = await Parse.Cloud.run("getNewPosts", {r:AppData.mode,d:date});
 	for (var i = 0; i < posts.p.length; i++) {
 		posts.p[i] = unpackObject(posts.p[i]);
 		posts.p[i].u = unpackObject(posts.p[i].u);
@@ -302,7 +311,9 @@ async function loadPosts() {
 		post.appendChild(toolbar);
 
 		document.querySelector("#posts").appendChild(post);
+		date = +posts.p[i].createdAt;
 	}
+	return date;
 }
 
 function unpackObject(obj) {
