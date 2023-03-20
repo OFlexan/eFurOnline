@@ -12,7 +12,7 @@ Gets the amount of unread notifications.
 # FUNC: countUnreadConversations
 Gets the amount of unread chat messages.  
 Input:
-1. `z`: app ID
+1. `z`: app version ID
 
 # FUNC: getNewPosts
 Gets 8 posts.
@@ -29,3 +29,9 @@ Input:
 Get votes on a poll post. Returns {} if user hasn't voted.
 Input:
 1. `p`: poll object ID
+
+# FUNC: getComments
+Gets comments on a post.
+1. (optional) `c`: comment ID (will get comments targeted at comments)
+2. (optional) `d`: timestamp of last comment
+3. `p`: post object ID

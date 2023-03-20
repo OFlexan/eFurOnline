@@ -2,40 +2,54 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width">
+    <meta charSet="UTF-8">
     <title>eFurOnline</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="heart.css">
     <script src="resources/parse.min.js"></script>
   </head>
   <body>
-    <app>
-      <view id="doclogin" class="view">
-        <input type="email" placeholder="Email"><br>
-        <input type="password" placeholder="Password"><br>
-        <button onclick="login()">Login</button>
-        <input type="checkbox" id="safemode">
-        <label for="safemode">Safe mode</label>
+    <desktop-app id="loadlayer" class="hidden"></desktop-app>
+    
+    <desktop-app id="contentlayer" class="hidden">
+      <div class="header">
+        <svg viewBox="0 0 120 40" width="30" height="30" id="sidemenu">
+          <rect width="100" height="10" fill="white"></rect>
+          <rect y="25" width="100" height="10" fill="white"></rect>
+          <rect y="50" width="100" height="10" fill="white"></rect>
+        </svg>
+        <p>eFur</p>
+      </div>
+    </desktop-app>
+
+    <mobile-app>
+      <view id="doclogin" class="hiddenview">
+        <info>include=#loadlayer;include=#contentlayer;hide=#sidemenu</info>
+        <div id="logincontent">
+          <input type="email" placeholder="Email"><br>
+          <input type="password" placeholder="Password"><br>
+          <button onclick="login()">Login</button>
+          <input type="checkbox" id="safemode">
+          <label for="safemode">Safe mode</label>
+          <button onclick="login(false, true)">Continue as guest</button>
+        </div>
       </view>
       <view id="docload" class="hiddenview">
+        <info>include=#loadlayer</info>
         <progress id="loadbar" value="0" max="100"></progress>
         <p id="loadstatus"></p>
         <img src="resources/paw_logo_text.png">
       </view>
       <view id="docnew" class="hiddenview">
-        <info>reset=#posts</info>
-        <div class="header">
-          <svg viewBox="0 0 120 40" width="30" height="30" id="sidemenu">
-            <rect width="100" height="10" fill="white"></rect>
-            <rect y="25" width="100" height="10" fill="white"></rect>
-            <rect y="50" width="100" height="10" fill="white"></rect>
-          </svg>
-          <p>eFur</p>
-        </div>
-        <div id="posts">
-
-        </div>
+        <info>reset=#posts;include=#contentlayer</info>
+        <div id="posts"></div>
       </view>
-    </app>
+      <view id="docpost" class="hiddenview">
+        <info>reset=#post;reset=#commentsection</info>
+        <div id="post"></div>
+        <div id="commentsection"></div>
+      </view>
+    </mobile-app>
+    
     <script src="app.js"></script>
   </body>
 </html>

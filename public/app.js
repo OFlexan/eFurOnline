@@ -5,26 +5,50 @@ var AppData = {
 	mode: 2,
 	posts: [],
 	version: {
-	  i: 94,
-	  t: "1.19.1"
+	  app: [95, "1.19.1"],
+	  web: [1, "1"]
 	}
 };
 
 var View = {
-	switch: function(id) {
-		var p = document.querySelector("#doc" + id);
-		var i = p.querySelector("info");
-		if (i) {
-			var opt = i.innerText.split(";");
-			for (var i = 0; i < opt.length; i++) {
-				if (opt[i].split("=")[0] == "reset") {
-					p.querySelector(opt[i].split("=")[1]).innerHTML = "";
+	switch: function(id, skipLoad) {
+		var v = document.querySelector(".view");
+		if (v) {
+			v.classList.remove("view");
+			v.classList.add("hiddenview");
+			var x = v.querySelector("info");
+			if (x) {
+				var opt = x.innerText.split(";");
+				for (var i = 0; i < opt.length; i++) {
+					if (opt[i].split("=")[0] == "include") {
+						var r = document.querySelector(opt[i].split("=")[1]);
+						if (!r.classList.contains("hidden")) r.classList.add("hidden");
+					}
+					if (opt[i].split("=")[0] == "hide") {
+						var r = document.querySelector(opt[i].split("=")[1]);
+						if (r.classList.contains("hidden")) r.classList.remove("hidden");
+					}
 				}
 			}
 		}
-		var v = document.querySelector(".view");
-		v.classList.remove("view");
-		v.classList.add("hiddenview");
+		var p = document.querySelector("#doc" + id);
+		var x = p.querySelector("info");
+		if (x) {
+			var opt = x.innerText.split(";");
+			for (var i = 0; i < opt.length; i++) {
+				if (opt[i].split("=")[0] == "reset" && !skipLoad) {
+					p.querySelector(opt[i].split("=")[1]).innerHTML = "";
+				}
+				if (opt[i].split("=")[0] == "include") {
+					var r = document.querySelector(opt[i].split("=")[1]);
+					if (r.classList.contains("hidden")) r.classList.remove("hidden");
+				}
+				if (opt[i].split("=")[0] == "hide") {
+					var r = document.querySelector(opt[i].split("=")[1]);
+					if (!r.classList.contains("hidden")) r.classList.add("hidden");
+				}
+			}
+		}
 		p.classList.remove("hiddenview");
 		p.classList.add("view");
 	},
@@ -32,18 +56,35 @@ var View = {
 		var q = document.querySelector("#doc" + id);
 		if (q) return q;
 		return document.querySelector("view:not(.hiddenview)");
+	},
+	ensure: function(id) {
+		return !!document.querySelector("#doc" + id + ":not(.hiddenview)");
 	}
 }
 
-async function login(skipLogin) {
-	if (document.querySelector("#safemode").checked) AppData.mode = 0;
+async function login(skipLogin, isGuest) {
+	if (!skipLogin && document.querySelector("#safemode").checked) {
+		AppData.mode = 0;
+		localStorage.setItem("efur$mode", AppData.mode);
+	}
 	View.switch("load");
 	document.querySelector("#loadstatus").innerText = "Initializing";
 	document.querySelector("#loadbar").value = 25;
 	
+	AppData.mode = +localStorage.getItem("efur$mode");
 	if (!AppData.user && !skipLogin) {
-		AppData.user = await Parse.User.logIn(document.querySelector("input[type=email]").value, document.querySelector("input[type=password]").value);
-	}
+		if (isGuest) {
+			AppData.user = await Parse.AnonymousUtils.logIn();
+			AppData.isGuest = true;
+			localStorage.setItem("efur$!guest", false);
+		}
+		else {
+			AppData.user = await Parse.User.logIn(document.querySelector("input[type=email]").value, document.querySelector("input[type=password]").value);
+			AppData.isGuest = false;
+			localStorage.setItem("efur$!guest", true);
+		}
+	} else AppData.isGuest = localStorage.getItem("efur$!guest") != "true";
+	AppData.loggedIn = true;
 
 	document.querySelector("#loadstatus").innerText = "Fetching configuration";
 	document.querySelector("#loadbar").value = 75;
@@ -60,8 +101,9 @@ async function feed() {
 	View.switch("new");
 	AppData.lastDate = await loadPosts(AppData.lastDate);
 	var t = false;
-	document.querySelector("app").onscroll = async () => {
-		if (!t && document.querySelector("app").scrollTop + window.innerHeight >= document.querySelector("app").scrollHeight - 2000) {
+	document.querySelector("mobile-app").onscroll = async () => {
+		if (!View.ensure("new")) return;
+		if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - 2000) {
 		  t = true;
 		  AppData.lastDate = await loadPosts(AppData.lastDate);
 		  t = false;
@@ -88,6 +130,8 @@ async function loadPosts(date) {
 		var artist = posts.p[i].e;
 		var categories = posts.p[i].c;
 		var tags = posts.p[i].t;
+		var favorites = posts.p[i].k;
+		var comments = posts.p[i].j;
 		var image = undefined;
 		var video = undefined;
 		if (posts.p[i].data) {
@@ -251,7 +295,7 @@ async function loadPosts(date) {
 			var btn = document.createElement("button");
 			btn.className = "votebtn";
 			btn.innerText = "VOTE";
-			btn.onclick = ((o, votes, multi, id, btn) => function() {
+			btn.onclick = ((o, votes, multi, id, btn, poll) => function() {
 				var send = [];
 				if (multi) {
 					for (var x = 0; x < o.length; x++) {
@@ -282,7 +326,7 @@ async function loadPosts(date) {
 					});
 				}
 				poll.removeChild(btn);
-			})(o, votes, multi, posts.p[i].p.id, btn);
+			})(o, votes, multi, posts.p[i].p.id, btn, poll);
 			poll.appendChild(btn);
 			var item = document.createElement("p");
 			item.className = "voteamount";
@@ -308,15 +352,48 @@ async function loadPosts(date) {
 			post.appendChild(item);
 		}
 		var toolbar = document.createElement("div");
-		var heart = document.createElement("input");
-		heart.type = "checkbox";
-		heart.className = "checkbox";
-		heart.id = "checkbox";
-		var heartSvg = document.createElement("label");
-		heartSvg.setAttribute("for", "checkbox");
-		heartSvg.innerHTML = '<svg id="heart-svg" viewBox="467 392 58 57" width="90" height="90" xmlns="http://www.w3.org/2000/svg"><g id="Group" fill="none" fill-rule="evenodd" transform="translate(467 392)"><path id="heart" d="M29.144 20.773c-.063-.13-4.227-8.67-11.44-2.59C7.63 28.795 28.94 43.256 29.143 43.394c.204-.138 21.513-14.6 11.44-25.213-7.214-6.08-11.377 2.46-11.44 2.59z" fill="#AAB8C2"/><circle id="main-circ" fill="#E2264D" opacity="0" cx="29.5" cy="29.5" r="1.5"/><g id="grp7" opacity="0" transform="translate(7 6)"><circle id="oval1" fill="#9CD8C3" cx="2" cy="6" r="2"/><circle id="oval2" fill="#8CE8C3" cx="5" cy="2" r="2"/></g><g id="grp6" opacity="0" transform="translate(0 28)"><circle id="oval1" fill="#CC8EF5" cx="2" cy="7" r="2"/><circle id="oval2" fill="#91D2FA" cx="3" cy="2" r="2"/></g><g id="grp3" opacity="0" transform="translate(52 28)"><circle id="oval2" fill="#9CD8C3" cx="2" cy="7" r="2"/><circle id="oval1" fill="#8CE8C3" cx="4" cy="2" r="2"/></g><g id="grp2" opacity="0" transform="translate(44 6)"><circle id="oval2" fill="#CC8EF5" cx="5" cy="6" r="2"/><circle id="oval1" fill="#CC8EF5" cx="2" cy="2" r="2"/></g><g id="grp5" opacity="0" transform="translate(14 50)"><circle id="oval1" fill="#91D2FA" cx="6" cy="5" r="2"/><circle id="oval2" fill="#91D2FA" cx="2" cy="2" r="2"/></g><g id="grp4" opacity="0" transform="translate(35 50)"><circle id="oval1" fill="#F48EA7" cx="6" cy="5" r="2"/><circle id="oval2" fill="#F48EA7" cx="2" cy="2" r="2"/></g><g id="grp1" opacity="0" transform="translate(24)"><circle id="oval1" fill="#9FC7FA" cx="2.5" cy="3" r="2"/><circle id="oval2" fill="#9FC7FA" cx="7.5" cy="2" r="2"/></g></g></svg>';
-		/*toolbar.appendChild(heart);
-		toolbar.appendChild(heartSvg);*/
+		toolbar.className = "posttoolbar";
+
+		var heartSvg = document.createElement("div");
+		heartSvg.className = "favcontainer";
+		heartSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-41.625938415527344 -55.81906509399414 424.2640686035156 424.2640686035156" height="26" width="28"><defs><g id="heart"><path d="M0 200 v-200 h200a100,100 90 0,1 0,200a100,100 90 0,1 -200,0z"></path></g></defs><use xlink:href="#heart" id="favtmp" fill="none" stroke="#E70303" stroke-width="40" transform="rotate(225,150,121)"></use></svg>';
+		var innerSvg = heartSvg.querySelector("#favtmp");
+		innerSvg.id = "";
+		heartSvg.onclick = ((innerSvg) => () => {
+			if (innerSvg.getAttribute("fill") != "#E70303") {
+				innerSvg.setAttribute("fill", "#E70303");
+			} else innerSvg.setAttribute("fill", "none");
+		})(innerSvg);
+		var heart = document.createElement("p");
+		heart.className = "favcount";
+		heart.innerText = favorites ?? 0;
+		heartSvg.appendChild(heart);
+		
+		var commentSvg = document.createElement("div");
+		commentSvg.className = "favcontainer";
+		commentSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-15 -15 310 320" height="26" width="28"><defs><g id="comment"><path d="M0 20c0-10 10-20 20-20l240 0c10 0 20 10 20 20l0 230L240 210l-220 0c-10 0-20-10-20-20l0-170M60 60l160 0M60 150l160 0M60 105l160 0"></path></g></defs><use xlink:href="#comment" fill="none" stroke="white" stroke-width="30"></use></svg>';
+		commentSvg.onclick = ((id, post, hasImg) => () => {
+			View.switch("post");
+			post.classList.add("diff");
+			var h = post.querySelector(".profheader");
+			h.classList.add("diff");
+			post.removeChild(h);
+			if (hasImg) {
+				var img = post.querySelector("img");
+				post.removeChild(img);
+				post.innerHTML = "";
+				post.appendChild(img);
+			}
+			post.appendChild(h);
+			document.querySelector("#post").appendChild(post);
+		})(id, post.cloneNode(true), !!image);
+		var comment = document.createElement("p");
+		comment.className = "favcount";
+		comment.innerText = comments ?? 0;
+		commentSvg.appendChild(comment);
+
+		toolbar.appendChild(heartSvg);
+		toolbar.appendChild(commentSvg);
 		// favorites, comments, info
 		post.appendChild(toolbar);
 
@@ -327,12 +404,13 @@ async function loadPosts(date) {
 }
 
 function unpackObject(obj) {
-	if (!obj || !obj.attributes) return;
+	if (!obj || !obj.attributes) return obj;
 	var a = obj.attributes;
 	var k = Object.keys(a);
 	for (var i = 0; i < k.length; i++) obj[k[i]] = a[k[i]];
 	return obj;
 }
 
-AppData.user = Parse.User.current();
+AppData.user = unpackObject(Parse.User.current());
 if (AppData.user) login(true);
+else View.switch("login");
