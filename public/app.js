@@ -537,6 +537,16 @@ function unpackObject(obj) {
   return obj;
 }
 
+function unpackAll(obj) {
+  if (!obj) return obj;
+  if (obj.attributes) {
+    var k = Object.keys(obj.attributes);
+    for (var i = 0; i < k.length; i++) obj[obj.attributes[i]] = a[obj.attributes[i]];
+  }
+  var c = Object.keys(obj);
+  for (var i = 0; i < c.length; i++) unpackAll(obj[c[i]]);
+}
+
 AppData.user = unpackObject(Parse.User.current());
 if (AppData.user) login(true);
 else View.switch("login");
