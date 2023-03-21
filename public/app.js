@@ -48,6 +48,11 @@ var View = {
           var r = document.querySelector(opt[i].split("=")[1]);
           if (!r.classList.contains("hidden")) r.classList.add("hidden");
         }
+          if (opt[i].split("=")[0] == "copy") {
+            v.removeChild(x);
+            v.innerHTML = document.querySelector(opt[i].split("=")[1]).innerHTML;
+            v.appendChild(x);
+          }
       }
     }
     p.classList.remove("hiddenview");
