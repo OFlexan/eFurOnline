@@ -538,13 +538,10 @@ function unpackObject(obj) {
 }
 
 function unpackAll(obj) {
-  if (!obj) return obj;
-  if (obj.attributes) {
-    var k = Object.keys(obj.attributes);
-    for (var i = 0; i < k.length; i++) obj[obj.attributes[i]] = a[obj.attributes[i]];
-  }
+  obj = unpackObject(obj);
   var c = Object.keys(obj);
-  for (var i = 0; i < c.length; i++) unpackAll(obj[c[i]]);
+  for (var i = 0; i < c.length; i++) obj[c[i]] = unpackAll(obj[c[i]]);
+  return obj;
 }
 
 AppData.user = unpackObject(Parse.User.current());
