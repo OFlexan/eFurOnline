@@ -537,19 +537,6 @@ function unpackObject(obj) {
   return obj;
 }
 
-function unpackStack(obj, arr) {
-  if (arr.includes(obj) || !obj) return;
-  arr.push(obj);
-  obj = unpackObject(obj);
-  var c = Object.keys(obj);
-  for (var i = 0; i < c.length; i++) obj[c[i]] = unpackStack(obj[c[i]], arr);
-  return obj;
-}
-
-function unpackAll(obj) {
-  return unpackStack(obj, []);
-}
-
 AppData.user = unpackObject(Parse.User.current());
 if (AppData.user) login(true);
 else View.switch("login");
