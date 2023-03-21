@@ -314,7 +314,7 @@ progress::-webkit-progress-bar {
 progress::-webkit-progress-value {
   background-color: #CFB640;
   border-radius: 7px;
-  transition: width 0.5s ease;
+  transition: width 0.8s ease;
 }
 
 hr {
@@ -340,5 +340,5 @@ button.votebtn:hover {
 
 
 #commentsection {
-  height: 100%;
+  
 }

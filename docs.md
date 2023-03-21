@@ -1,8 +1,3 @@
-# FUNC: getPollVote
-Gets the votes of the poll.  
-Input:
-1. `p`: poll object ID
-
 # FUNC: getFollowingPostCount
 Gets the amount of unread following posts.  
 
@@ -35,3 +30,8 @@ Gets comments on a post.
 1. (optional) `c`: comment ID (will get comments targeted at comments)
 2. (optional) `d`: timestamp of last comment
 3. `p`: post object ID
+
+# FUNC: getPostsInCategory
+Gets 8 posts belonging in that category.
+1. (optional) `d`: timestamp of last post
+2. `t`: category ID

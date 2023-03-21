@@ -5,7 +5,8 @@ var AppData = {
 	mode: 2,
 	posts: [],
 	version: {
-	  app: [95, "1.19.1"],
+	  app: [94, "1.19.1"],
+	  api: [0, "1.19.1"],
 	  web: [1, "1"]
 	}
 };
@@ -167,7 +168,7 @@ async function loadPosts(date) {
 		}
 		
 		var post = document.createElement("div");
-		post.className = "post";
+		post.className = "post post-" + id;
 		// profile
 		// pfp, name, rating, categories, time
 		var header = document.createElement("div");
@@ -292,47 +293,68 @@ async function loadPosts(date) {
 				poll.appendChild(div);
 				if (x != options.length - 1) poll.appendChild(document.createElement("hr"));
 			}
+			var item = document.createElement("p");
 			var btn = document.createElement("button");
 			btn.className = "votebtn";
 			btn.innerText = "VOTE";
-			btn.onclick = ((o, votes, multi, id, btn, poll) => function() {
+			btn.onclick = ((o, votes, multi, id, btn, poll, lbl) => async function(e, skip) {
 				var send = [];
-				if (multi) {
-					for (var x = 0; x < o.length; x++) {
-						if (o[x].b.classList.contains("active")) send.push(x);
-					}
+				var response;
+				if (!skip) {
+				  if (!multi) {
+				    for (var x = 0; x < o.length; x++) {
+				      if (o[x].b.classList.contains("active")) {
+				        await Parse.Cloud.run("voteOnPoll", {
+				          p: id,
+				          v: [x]
+				        });
+				      }
+				    }
+				  } else {
+				    for (var x = 0; x < o.length; x++) {
+				      if (o[x].b.classList.contains("active")) send.push(x);
+				    }
+				    await Parse.Cloud.run("voteOnPoll", {
+				      p: id,
+				      v: send
+				    });
+				  }
 				}
+				response = unpackObject(await Parse.Cloud.run("getPollVote", {
+				  p: id
+			  }));
+			  if (!response) return;
+				response.p = unpackObject(response.p);
+				response.p.os = response.p.s;
+				response.p.s = 0;
+				for (var x = 0; x < response.p.o.length; x++) response.p.s += response.p["s" + x];
+				
 				for (var x = 0; x < o.length; x++) {
-					if (!multi && o[x].b.classList.contains("active")) {
-						Parse.Cloud.run("voteOnPoll", {
-							p: id,
-							v: [x]
-						});
-					}
-					o[x].a.innerText = Math.round(+o[x].d.getAttribute("data-value") / votes * 100) + "%";
+				  var g = response.p["s" + x];
+					var f = Math.floor(g / response.p.s * 100);
+					o[x].a.innerText = (isNaN(f) ? 0 : f) + "%";
 					o[x].c.classList.add("discovered");
-					var v = o[x].d.value;
+					var v = g == 0 ? response.p.s / 60 : g;
 					o[x].d.classList.remove("hidden");
 					o[x].d.value = 0;
 					setTimeout(((v, d) => () => {
 						d.value = v;
-					})(v, o[x].d), 1);
+					})(v, o[x].d), 100);
 					o[x].e.onclick = undefined;
+					lbl.innerText = response.p.os + " votes";
 				}
-				if (multi) {
-					Parse.Cloud.run("voteOnPoll", {
-						p: id,
-						v: send
-					});
+				for (var x = 0; x < response.o.length; x++) {
+				  o[response.o[x]].b.classList.add("active");
+				  o[response.o[x]].x.classList.remove("disabled");
 				}
 				poll.removeChild(btn);
-			})(o, votes, multi, posts.p[i].p.id, btn, poll);
+			})(o, votes, multi, posts.p[i].p.id, btn, poll, item);
 			poll.appendChild(btn);
-			var item = document.createElement("p");
 			item.className = "voteamount";
 			item.innerText = votes + " votes";
 			poll.appendChild(item);
 			post.appendChild(poll);
+			btn.onclick(null, true);
 		}
 		if (artist !== undefined) {
 			var item = document.createElement("p");
@@ -372,7 +394,7 @@ async function loadPosts(date) {
 		var commentSvg = document.createElement("div");
 		commentSvg.className = "favcontainer";
 		commentSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-15 -15 310 320" height="26" width="28"><defs><g id="comment"><path d="M0 20c0-10 10-20 20-20l240 0c10 0 20 10 20 20l0 230L240 210l-220 0c-10 0-20-10-20-20l0-170M60 60l160 0M60 150l160 0M60 105l160 0"></path></g></defs><use xlink:href="#comment" fill="none" stroke="white" stroke-width="30"></use></svg>';
-		commentSvg.onclick = ((id, post, hasImg) => () => {
+		commentSvg.onclick = ((id, post, hasImg, title) => () => {
 			View.switch("post");
 			post.classList.add("diff");
 			var h = post.querySelector(".profheader");
@@ -384,9 +406,17 @@ async function loadPosts(date) {
 				post.innerHTML = "";
 				post.appendChild(img);
 			}
+			if (title !== null) {
+			  title = title.cloneNode(true);
+			  post.innerHTML = "";
+			  title.className = "title";
+				post.appendChild(title);
+			}
 			post.appendChild(h);
 			document.querySelector("#post").appendChild(post);
-		})(id, post.cloneNode(true), !!image);
+			document.querySelector("#commentsection").style.height = "calc(100% - " + (h.clientHeight + 7) + "px)";
+			document.querySelector("mobile-app").scrollTop = document.querySelector("mobile-app").scrollHeight;
+		})(id, post.cloneNode(true), !!image, post.querySelector(".votetitle"));
 		var comment = document.createElement("p");
 		comment.className = "favcount";
 		comment.innerText = comments ?? 0;
