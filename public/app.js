@@ -49,9 +49,9 @@ var View = {
           if (!r.classList.contains("hidden")) r.classList.add("hidden");
         }
           if (opt[i].split("=")[0] == "copy") {
-            v.removeChild(x);
-            v.innerHTML = document.querySelector(opt[i].split("=")[1]).innerHTML;
-            v.appendChild(x);
+            p.removeChild(x);
+            p.innerHTML = document.querySelector(opt[i].split("=")[1]).innerHTML;
+            p.appendChild(x);
           }
       }
     }
