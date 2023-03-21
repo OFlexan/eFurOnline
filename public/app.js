@@ -6,7 +6,7 @@ var AppData = {
 	posts: [],
 	version: {
 	  app: [94, "1.19.1"],
-	  api: [0, "1.19.1"],
+	  api: [94, "1.19.1"],
 	  web: [1, "1"]
 	}
 };
