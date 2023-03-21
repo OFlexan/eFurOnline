@@ -48,11 +48,11 @@ var View = {
           var r = document.querySelector(opt[i].split("=")[1]);
           if (!r.classList.contains("hidden")) r.classList.add("hidden");
         }
-          if (opt[i].split("=")[0] == "copy") {
-            p.removeChild(x);
-            p.innerHTML = document.querySelector(opt[i].split("=")[1]).innerHTML;
-            p.appendChild(x);
-          }
+        if (opt[i].split("=")[0] == "copy" && !skipLoad) {
+          p.removeChild(x);
+          p.innerHTML = document.querySelector(opt[i].split("=")[1]).innerHTML;
+          p.appendChild(x);
+        }
       }
     }
     p.classList.remove("hiddenview");
@@ -179,14 +179,19 @@ async function loadPosts(date) {
     post.className = "post post-" + id;
     // profile
     // pfp, name, rating, categories, time
+    var userclick = ((id) => () => {
+      loadProfile(id);
+    })(posts.p[i].u.id);
     var header = document.createElement("div");
     header.className = "profheader";
     var pfpd = document.createElement("img");
     pfpd.className = "phpfp";
+    pfpd.onclick = userclick;
     pfpd.src = pfp;
     header.appendChild(pfpd);
     var named = document.createElement("p");
     named.className = "phname";
+    named.onclick = userclick;
     named.innerText = name;
     header.appendChild(named);
     var uprofiled = document.createElement("p");
@@ -342,7 +347,7 @@ async function loadPosts(date) {
           var f = Math.floor(g / response.p.s * 100);
           o[x].a.innerText = (isNaN(f) ? 0 : f) + "%";
           o[x].c.classList.add("discovered");
-          var v = g == 0 ? response.p.s / 60 : g;
+          var v = g == 0 ? response.p.s / 100 : g;
           o[x].d.classList.remove("hidden");
           o[x].d.value = 0;
           setTimeout(((v, d) => () => {
@@ -412,10 +417,12 @@ async function loadPosts(date) {
     var commentSvg = document.createElement("div");
     commentSvg.className = "favcontainer";
     commentSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-15 -15 310 320" height="26" width="28"><defs><g id="comment"><path d="M0 20c0-10 10-20 20-20l240 0c10 0 20 10 20 20l0 230L240 210l-220 0c-10 0-20-10-20-20l0-170M60 60l160 0M60 150l160 0M60 105l160 0"></path></g></defs><use xlink:href="#comment" fill="none" stroke="white" stroke-width="30"></use></svg>';
-    commentSvg.onclick = ((id, post, hasImg, title) => () => {
+    commentSvg.onclick = ((id, post, hasImg, title, header) => () => {
       View.switch("post");
       post.classList.add("diff");
       var h = post.querySelector(".profheader");
+      h.querySelector(".phpfp").onclick = header.querySelector(".phpfp").onclick;
+      h.querySelector(".phname").onclick = header.querySelector(".phname").onclick;
       h.classList.add("diff");
       post.removeChild(h);
       if (hasImg) {
@@ -436,7 +443,7 @@ async function loadPosts(date) {
       document.querySelector("mobile-app").scrollTop = document.querySelector("mobile-app").scrollHeight;
 
       loadComments(undefined, id);
-    })(id, post.cloneNode(true), !!image, post.querySelector(".votetitle"));
+    })(id, post.cloneNode(true), !!image, post.querySelector(".votetitle"), header);
     var comment = document.createElement("p");
     comment.className = "favcount";
     comment.innerText = comments ?? 0;
@@ -477,15 +484,20 @@ async function loadComments(sub, id) {
     var name = comments.c[i].u.username;
 
     // comment
+    var userclick = ((id) => () => {
+      loadProfile(id);
+    })(comments.c[i].u.id);
     var comment = document.createElement("div");
     comment.className = "comment comment-" + id;
     var header = document.createElement("div");
     header.className = "cmtheader";
     var dpfp = document.createElement("img");
     dpfp.className = "cmtpfp";
+    dpfp.onclick = userclick;
     dpfp.src = pfp;
     var dname = document.createElement("p");
     dname.className = "cmtname";
+    dname.onclick = userclick;
     dname.innerText = name;
     // ...
     header.appendChild(dpfp);
@@ -534,12 +546,79 @@ async function loadComments(sub, id) {
   }
 }
 
+async function loadProfile(id) {
+  var v = View.get().id.replace("doc", "");
+  View.switch("profile");
+  var profile = unpackObject(await Parse.Cloud.run("getUserProfile", {u: id}));
+  for (var i = 0; i < profile.ia.length; i++) profile.ia[i] = unpackObject(profile.ia[i]);
+  for (var i = 0; i < profile.ib.length; i++) profile.ib[i] = unpackObject(profile.ib[i]);
+  var view = View.get("profile");
+  
+  view.querySelector(".dp_background").src = profile.b ? profile.b.p : "resources/user_background.png";
+  view.querySelector(".dp_background").onclick = ((url) => () => loadImage(view.querySelector(".dp_background").src))(profile.b ? profile.b.f : "resources/user_background.png");
+  view.querySelector(".dp_foreground").src = profile.a ? profile.a.p : "resources/user_icon.png";
+  view.querySelector(".dp_foreground").onclick = ((url) => () => loadImage(view.querySelector(".dp_foreground").src))(profile.b ? profile.b.f : "resources/dp_foreground.png");
+  view.querySelectorAll(".dp_tsvgs")[0].onclick = ((v) => () => View.switch(v, true))(v);
+  view.querySelector(".dp_name").innerText = profile.u;
+  view.querySelectorAll(".dp_count")[0].innerText = profile.c;
+  view.querySelectorAll(".dp_count")[1].innerText = profile.d;
+  view.querySelectorAll(".dp_count")[2].innerText = profile.h;
+  view.querySelector(".dp_member").innerText = "MEMBER FOR " + formatDate(Date.now() - profile.s, 2).toUpperCase();
+  registerSelectionbar(view.querySelector(".selectionbar"));
+}
+
+function loadImage(image) {
+  var v = View.get().id.replace("doc", "");
+  View.switch("image");
+  View.get().querySelector("img").src = image;
+  View.get().onclick = ((v) => () => {
+    View.switch(v, true);
+  })(v);
+}
+
+function registerSelectionbar(bar) {
+  var q = bar.querySelectorAll("p.selection");
+  for (var i = 0; i < q.length; i++) {
+    q[i].onclick = ((bar, v) => () => {
+      var f = bar.querySelector("p.selection.active");
+      if (f) f.classList.remove("active");
+      v.classList.add("active");
+      v.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+        inline: 'center'
+      });
+    })(bar, q[i]);
+  }
+}
+
 function unpackObject(obj) {
   if (!obj || !obj.attributes) return obj;
   var a = obj.attributes;
   var k = Object.keys(a);
   for (var i = 0; i < k.length; i++) obj[k[i]] = a[k[i]];
   return obj;
+}
+
+function ensureLoggedIn(func) {
+  if (!AppData.isGuest) return func();
+  showError("An account is needed to perform this action!", true);
+}
+
+function showError(text, login) {
+  // error
+}
+
+function formatDate(time, format) {
+  var secs = Math.floor(time / 1000);
+  var mins = Math.floor(time / 60000);
+  var hours = Math.floor(time / 3600000);
+  var days = Math.floor(time / 86400000);
+  if (days != 0) return days + (format == 2 ? " days" : (format == 1 ? " d" : "d"));
+  if (hours != 0) return hours + (format == 2 ? " hours" : (format == 1 ? " h" : "h"));
+  if (mins != 0) return mins + (format == 2 ? " minutes" : (format == 1 ? " m" : "m"));
+  if (secs != 0) return secs + (format == 2 ? " seconds" : (format == 1 ? " s" : "s"));
+  return 0 + (format == 2 ? " seconds" : (format == 1 ? " s" : "s"));
 }
 
 AppData.user = unpackObject(Parse.User.current());

@@ -55,35 +55,72 @@
       <view id="docprofile" class="hiddenview">
         <info>copy=#profilepreset</info>
       </view>
+
+      <view id="docimage" class="hiddenview">
+        <info>copy=#imagepreset</info>
+      </view>
     </mobile-app>
+
+    
+
+    <div id="imagepreset" class="hidden">
+      <img class="fullimage">
+    </div>
     
     <div id="profilepreset" class="hidden">
-      <img class="dp_background">
-      <img class="dp_foreground">
+      <svg class="profsvgs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 180 30" width="100%">
+        <defs>
+          <g id="profsvg">
+            <path d="M0 10q50 10 90-10 40 20 90 10l0 20-180 0 0-20"></path>
+          </g>
+        </defs>
+        <use xlink:href="#profsvg" fill="#13171B"></use>
+      </svg>
+      <img class="dp_background" src="resources/user_background.png">
       <div class="dp_toolbar">
-
+        <svg class="dp_tsvgs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 140 140" width="20" height="20">
+          <defs>
+            <g id="dp_tsvg0">
+              <path d="M70 10l-60 60 60 60M10 70l120 0"></path>
+            </g>
+          </defs>
+          <use xlink:href="#dp_tsvg0" fill="none" stroke="white" stroke-width="10"></use>
+        </svg>
       </div>
-      <p class="dp_name"></p>
+      <img class="dp_foreground" src="resources/user_icon.png">
+      <p class="dp_name">&nbsp;</p>
       <div class="dp_info">
         <!-- Maybe add previews here -->
-        <p class="dp_count"></p>
+        <p class="dp_count">0</p>
         <p class="dp_header">following</p>
       </div>
       <div class="dp_info">
         <!-- Maybe add previews here -->
-        <p class="dp_count"></p>
+        <p class="dp_count">0</p>
         <p class="dp_header">followers</p>
       </div>
       <div class="dp_info">
         <!-- Maybe add previews here -->
-        <p class="dp_count"></p>
+        <p class="dp_count">0</p>
         <p class="dp_header">posts</p>
       </div>
-      <img class="dp_svg">
-      <p class="dp_member">MEMBER FOR </p>
+      <svg class="dp_svgs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="0 0 140 140" width="15" height="15">
+        <defs>
+          <g id="dp_svg">
+            <path d="M70 10a10 10 90 000 120 10 10 90 000-120M70 110l0-50M70 30l0 10"></path>
+          </g>
+        </defs>
+        <use xlink:href="#dp_svg" fill="none" stroke="#7c7c7c" stroke-width="10"></use>
+      </svg>
+      <p class="dp_member">MEMBER FOR %1$S %2$S</p>
 
-      <div class="dp_select">
-
+      <div class="dp_select selectionbar">
+        <p class="selection active">ABOUT</p>
+        <p class="selection">GALLERY</p>
+        <p class="selection">FAVOURITES</p>
+        <p class="selection">COMMENTS</p>
+        <p class="selection">FOLLOWERS</p>
+        <p class="selection">FOLLOWING</p>
       </div>
       <div class="db_stats">
 
