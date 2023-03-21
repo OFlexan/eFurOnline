@@ -1,28 +1,24 @@
 # FUNC: getFollowingPostCount
-Gets the amount of unread following posts.  
+Gets the amount of unread following posts.
 
 # FUNC: getNotificationCount
-Gets the amount of unread notifications.  
+Gets the amount of unread notifications.
 
 # FUNC: countUnreadConversations
-Gets the amount of unread chat messages.  
-Input:
+Gets the amount of unread chat messages.
 1. `z`: app version ID
 
 # FUNC: getNewPosts
 Gets 8 posts.
-Input:
 1. (optional) `d`: timestamp of last post
 
 # FUNC: voteOnPoll
 Votes on a poll post.
-Input:
 1. `p`: poll object ID
 2. `v`: array of voted indexes
 
 # FUNC: getPollVote
 Get votes on a poll post. Returns {} if user hasn't voted.
-Input:
 1. `p`: poll object ID
 
 # FUNC: getComments
@@ -35,3 +31,15 @@ Gets comments on a post.
 Gets 8 posts belonging in that category.
 1. (optional) `d`: timestamp of last post
 2. `t`: category ID
+
+# FUNC: favPost
+Favorites or unfavorites a post.
+1. `a`: `true` to favorite, `false` to unfavorite
+2. `p`: post object ID
+3. `z`: app version ID
+
+# FUNC: favComment
+Likes or unlikes a comment.
+1. `a`: `true` to like, `false` to unlike
+2. `c`: comment object ID
+3. `z`: app version ID
