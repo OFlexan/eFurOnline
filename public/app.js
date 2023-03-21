@@ -538,7 +538,7 @@ function unpackObject(obj) {
 }
 
 function unpackStack(obj, arr) {
-  if (arr.includes(obj)) return;
+  if (arr.includes(obj) || !obj) return;
   arr.push(obj);
   obj = unpackObject(obj);
   var c = Object.keys(obj);
