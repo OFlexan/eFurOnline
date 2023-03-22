@@ -624,3 +624,7 @@ function formatDate(time, format) {
 AppData.user = unpackObject(Parse.User.current());
 if (AppData.user) login(true);
 else View.switch("login");
+
+document.querySelector("#sidemenusvg").onclick = function() {
+  document.querySelector("#sidemenu").classList.remove("hidden");
+};
