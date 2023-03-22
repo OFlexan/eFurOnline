@@ -3,12 +3,7 @@ Parse.serverURL = "https://api.efur.app/parse";
 
 var AppData = {
   mode: 2,
-  posts: [],
-  version: {
-    app: [94, "1.19.1"],
-    api: [94, "1.19.1"],
-    web: [2, "1.1"]
-  }
+  posts: []
 };
 
 var View = {
@@ -92,10 +87,7 @@ async function login(skipLogin, isGuest) {
   } else AppData.isGuest = localStorage.getItem("efur$!guest") != "true";
   AppData.loggedIn = true;
 
-  document.querySelector(".smbg").src = AppData.user.b ? AppData.user.b.p : "resources/user_background.png";
-  document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
-  document.querySelector(".smbg").onclick = () => loadProfile(AppData.user.id);
-  document.querySelector(".smfg").onclick = () => loadProfile(AppData.user.id);
+  profileLoaded();
 
   document.querySelector("#loadstatus").innerText = "Fetching configuration";
   document.querySelector("#loadbar").value = 75;
@@ -235,6 +227,7 @@ async function loadPosts(date) {
         var item = document.createElement("img");
         item.className = "image";
         item.src = image;
+        item.onclick = ((image) => () => loadImage(image))(posts.p[i].data.f);
         post.appendChild(item);
       }
     }
@@ -404,14 +397,14 @@ async function loadPosts(date) {
       if (innerSvg.getAttribute("fill") != "#E70303") {
         innerSvg.setAttribute("fill", "#E70303");
         // favorite
-        var r = await Parse.Cloud.run("favPost", {a: true, p: id, z: AppData.version.api[0]});
+        var r = await Parse.Cloud.run("favPost", {a: true, p: id, z: AppData.app.version.api[0]});
         heart.innerText = r.f ?? 0;
         innerSvg.setAttribute("fill", r.g ? "#E70303" : "none");
         return;
       }
       innerSvg.setAttribute("fill", "none");
       // unfavorite
-      var r = await Parse.Cloud.run("favPost", {a: false, p: id, z: AppData.version.api[0]});
+      var r = await Parse.Cloud.run("favPost", {a: false, p: id, z: AppData.app.version.api[0]});
       heart.innerText = r.f ?? 0;
       innerSvg.setAttribute("fill", r.g ? "#E70303" : "none");
     })(innerSvg, id, heart);
@@ -516,35 +509,31 @@ async function loadComments(sub, id) {
 
     var toolbar = document.createElement("div");
     toolbar.className = "cmttoolbar";
-    var likeSvg = document.createElement("div");
-    likeSvg.className = "cmtcontainer";
-    likeSvg.innerHTML = '<svg class="cmts" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-15 -40 310 320" height="22" width="24"><defs><g id="cmt"><path d="M10 100l0 130 20 0 0-130-20 0M80 100l100-80-20 80 130 0-50 130-160 0 0-130"></path></g></defs><use xlink:href="#cmt" id="favtmp" fill="' + (liked ? "#D9D104" : "none") + '" stroke="' + (liked ? "#D9D104" : "#9F9B0D") + '" stroke-width="25"></use></svg>';
+    var likeSvg = document.createElement("p");
+    likeSvg.className = comments.f.includes(id) ? "cmtcontainer glyph-full liked" : "cmtcontainer glyph-outline";
+    likeSvg.innerText = comments.f.includes(id) ? AppData.app.glyphs.liked : AppData.app.glyphs.like;
     var like = document.createElement("p");
-    var innerSvg = likeSvg.querySelector("#favtmp");
-    innerSvg.id = "";
     likeSvg.onclick = ((innerSvg, id, like) => async () => {
-      if (innerSvg.getAttribute("fill") != "#D9D104") {
-        innerSvg.setAttribute("fill", "#D9D104");
-        innerSvg.setAttribute("stroke", "#D9D104")
+      if (!innerSvg.classList.contains("liked")) {
+        innerSvg.className = "cmtcontainer glyph-full liked";
+        innerSvg.innerText = AppData.app.glyphs.liked;
+        like.innerText = +like.innerText + 1;
         // favorite
-        var r = await Parse.Cloud.run("favComment", {a: true, c: id, z: AppData.version.api[0]});
+        var r = await Parse.Cloud.run("favComment", {a: true, c: id, z: AppData.app.version.api[0]});
         like.innerText = r.s ?? 0;
-        innerSvg.setAttribute("fill", r.g ? "#D9D104" : "none");
-        innerSvg.setAttribute("stroke", r.g ? "#D9D104" : "#9F9B0D")
         return;
       }
-      innerSvg.setAttribute("fill", "none");
-      innerSvg.setAttribute("stroke", "#9F9B0D")
+      innerSvg.className = "cmtcontainer glyph-outline";
+      innerSvg.innerText = AppData.app.glyphs.like;
+      like.innerText = +like.innerText - 1;
       // unfavorite
-      var r = await Parse.Cloud.run("favComment", {a: false, c: id, z: AppData.version.api[0]});
+      var r = await Parse.Cloud.run("favComment", {a: false, c: id, z: AppData.app.version.api[0]});
       like.innerText = r.s ?? 0;
-      innerSvg.setAttribute("fill", r.g ? "#D9D104" : "none");
-      innerSvg.setAttribute("stroke", r.g ? "#D9D104" : "#9F9B0D")
-    })(innerSvg, id, like);
+    })(likeSvg, id, like);
     like.className = "favcount";
     like.innerText = likes ?? 0;
-    likeSvg.appendChild(like);
     toolbar.appendChild(likeSvg);
+    toolbar.appendChild(like);
     comment.appendChild(toolbar);
 
     document.querySelector("#commentsection").appendChild(comment);
@@ -560,9 +549,9 @@ async function loadProfile(id) {
   var view = View.get("profile");
   
   view.querySelector(".dp_background").src = profile.b ? profile.b.p : "resources/user_background.png";
-  view.querySelector(".dp_background").onclick = ((url) => () => loadImage(view.querySelector(".dp_background").src))(profile.b ? profile.b.f : "resources/user_background.png");
+  view.querySelector(".dp_background").onclick = () => loadImage(view.querySelector(".dp_background").src);
   view.querySelector(".dp_foreground").src = profile.a ? profile.a.p : "resources/user_icon.png";
-  view.querySelector(".dp_foreground").onclick = ((url) => () => loadImage(view.querySelector(".dp_foreground").src))(profile.b ? profile.b.f : "resources/dp_foreground.png");
+  view.querySelector(".dp_foreground").onclick = () => loadImage(view.querySelector(".dp_foreground").src);
   view.querySelectorAll(".dp_tsvgs")[0].onclick = ((v) => () => View.switch(v, true))(v);
   view.querySelector(".dp_name").innerText = profile.u;
   view.querySelectorAll(".dp_count")[0].innerText = profile.c;
@@ -626,15 +615,14 @@ function formatDate(time, format) {
   return 0 + (format == 2 ? " seconds" : (format == 1 ? " s" : "s"));
 }
 
-AppData.user = unpackObject(Parse.User.current());
-if (AppData.user) login(true);
-else View.switch("login");
-
-document.querySelector("#sidemenusvg").onclick = function() {
-  document.querySelector("#sidemenu").classList.remove("hidden");
-  document.querySelector(".coverall").classList.remove("hidden");
-};
-document.querySelector(".coverall").onclick = function() {
-  document.querySelector("#sidemenu").classList.add("hidden");
-  document.querySelector(".coverall").classList.add("hidden");
+function profileLoaded() {
+  var c = () => {
+    loadProfile(AppData.user.id);
+    document.querySelector("#sidemenu").classList.add("hidden");
+    document.querySelector(".coverall").classList.add("hidden");
+  };
+  document.querySelector(".smbg").src = AppData.user.b ? AppData.user.b.p : "resources/user_background.png";
+  document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
+  document.querySelector(".smbg").onclick = c;
+  document.querySelector(".smfg").onclick = c;
 }

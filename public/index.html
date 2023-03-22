@@ -5,14 +5,42 @@
     <meta charSet="UTF-8">
     <title>eFurOnline</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="https://opentype.js.org/dist/opentype.js"></script>
+    <script src="resources/glyph.js"></script>
     <script src="resources/parse.min.js"></script>
   </head>
   <body>
     <desktop-app id="loadlayer" class="hidden"></desktop-app>
+    
+    <desktop-app id="contentlayer" class="hidden">
+      <div class="header">
+        <p id="sidemenusvg" class="glyph-outline" glyph="menu"></p>
+        <p id="appheader">eFur</p>
+      </div>
+      <div id="sidemenu" class="hidden">
+        <img class="smbg" src="resources/user_background.png">
+        <img class="smfg" src="resources/user_icon.png">
+        <div class="smcontent">
+          <p id="sm_sfw">SFW Mode</p>
+          <hr>
+          <p id="sm_follow">Following</p>
+          <p id="sm_new">New</p>
+          <p id="sm_discover">Discover</p>
+          <p id="sm_profile">My profile</p>
+          <hr>
+          <p id="sm_chat">Messages</p>
+          <p id="sm_notifs">Notifications</p>
+          <p id="sm_news">News</p>
+          <hr>
+          <p id="sm_settings">Settings</p>
+          <p id="sm_support">About & support</p>
+        </div>
+      </div>
+    </desktop-app>
 
     <mobile-app>
       <view id="doclogin" class="hiddenview">
-        <info>include=#loadlayer;include=#contentlayer;hide=#sidemenu</info>
+        <info>include=#loadlayer;include=#contentlayer;hide=#sidemenusvg</info>
         <div id="logincontent">
           <input type="email" placeholder="Email"><br>
           <input type="password" placeholder="Password"><br>
@@ -116,37 +144,9 @@
       </div>
     </div>
     
-    <desktop-app id="contentlayer" class="hidden">
-      <div class="coverall hidden"></div>
-      <div class="header">
-        <svg viewBox="0 0 120 40" width="30" height="30" id="sidemenusvg">
-          <rect width="100" height="10" fill="white"></rect>
-          <rect y="25" width="100" height="10" fill="white"></rect>
-          <rect y="50" width="100" height="10" fill="white"></rect>
-        </svg>
-        <p id="appheader">eFur</p>
-      </div>
-      <div id="sidemenu" class="hidden">
-        <img class="smbg" src="resources/user_background.png">
-        <img class="smfg" src="resources/user_icon.png">
-        <div class="smcontent">
-          <p id="sm_sfw">SFW Mode</p>
-          <hr>
-          <p id="sm_follow">Following</p>
-          <p id="sm_new">New</p>
-          <p id="sm_discover">Discover</p>
-          <p id="sm_profile">My profile</p>
-          <hr>
-          <p id="sm_chat">Messages</p>
-          <p id="sm_notifs">Notifications</p>
-          <p id="sm_news">News</p>
-          <hr>
-          <p id="sm_settings">Settings</p>
-          <p id="sm_support">About & support</p>
-        </div>
-      </div>
-    </desktop-app>
+    <div class="coverall hidden"></div>
     
     <script src="app.js"></script>
+    <script src="loader.js" defer></script>
   </body>
 </html>
