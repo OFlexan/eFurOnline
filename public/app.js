@@ -74,7 +74,7 @@ async function login(skipLogin, isGuest) {
     localStorage.setItem("efur$mode", AppData.mode);
   }
   View.switch("load");
-  document.querySelector("#loadstatus").innerText = "Initializing";
+  document.querySelector("#loadstatus").innerText = "Fetching account";
   document.querySelector("#loadbar").value = 25;
   
   AppData.mode = +localStorage.getItem("efur$mode");
@@ -91,6 +91,11 @@ async function login(skipLogin, isGuest) {
     }
   } else AppData.isGuest = localStorage.getItem("efur$!guest") != "true";
   AppData.loggedIn = true;
+
+  document.querySelector(".smbg").src = AppData.user.b ? AppData.user.b.p : "resources/user_background.png";
+  document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
+  document.querySelector(".smbg").onclick = () => loadProfile(AppData.user.id);
+  document.querySelector(".smfg").onclick = () => loadProfile(AppData.user.id);
 
   document.querySelector("#loadstatus").innerText = "Fetching configuration";
   document.querySelector("#loadbar").value = 75;
@@ -627,4 +632,9 @@ else View.switch("login");
 
 document.querySelector("#sidemenusvg").onclick = function() {
   document.querySelector("#sidemenu").classList.remove("hidden");
+  document.querySelector(".coverall").classList.remove("hidden");
 };
+document.querySelector(".coverall").onclick = function() {
+  document.querySelector("#sidemenu").classList.add("hidden");
+  document.querySelector(".coverall").classList.add("hidden");
+}
