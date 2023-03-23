@@ -1,4 +1,5 @@
 /* init data */
+if (checkMobile()) alert("The website is optimized for computers, please use the app if possible.");
 document.querySelector("#sidemenusvg").onclick = function() {
   document.querySelector("#sidemenu").classList.remove("hidden");
   document.querySelector(".coverall").classList.remove("hidden");
