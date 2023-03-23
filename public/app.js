@@ -76,12 +76,12 @@ async function login(skipLogin, isGuest) {
   AppData.mode = +localStorage.getItem("efur$mode");
   if (!AppData.user && !skipLogin) {
     if (isGuest) {
-      AppData.user = await Parse.AnonymousUtils.logIn();
+      AppData.user = unpackObject(await Parse.AnonymousUtils.logIn());
       AppData.isGuest = true;
       localStorage.setItem("efur$!guest", false);
     }
     else {
-      AppData.user = await Parse.User.logIn(document.querySelector("input[type=email]").value, document.querySelector("input[type=password]").value);
+      AppData.user = unpackObject(await Parse.User.logIn(document.querySelector("input[type=email]").value, document.querySelector("input[type=password]").value));
       AppData.isGuest = false;
       localStorage.setItem("efur$!guest", true);
     }

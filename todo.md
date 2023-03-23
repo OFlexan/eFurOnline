@@ -14,6 +14,7 @@
 13. Finish comments and replies
 14. Add info counters on menu drawer
 15. Add error/alert/prompt/options menu for Android input/output
+16. Add name under profile picture in menu drawer
 
 # Needed
 1. ~~Favorite function~~
