@@ -158,13 +158,24 @@ p.favcount {
   line-height: 28px;
 }
 
-div.favcontainer {
+div.btncontainer {
   width: 110px;
   height: 100%;
   margin: 0;
   float: left;
   border-radius: 5px;
   cursor: pointer;
+}
+
+p.favcontainer {
+  color: #E70303;
+}
+
+p.svgcontainer {
+  float: left;
+  margin: 0;
+  font-size: 28px;
+  margin-right: 10px;
 }
 
 div.header {
@@ -184,7 +195,7 @@ div.header p {
   line-height: 60px;
 }
 
-#sidemenusvg {
+#sidemenusvg, #backsvg {
   margin: 0;
   position: absolute;
   top: 50%;
@@ -192,7 +203,7 @@ div.header p {
   cursor: pointer;
 }
 
-div#posts {
+div.postview {
   position: absolute;
   top: 60px;
   width: 100%;
@@ -523,13 +534,21 @@ p.selection.active {
 
 div#sidemenu {
   aspect-ratio: 28 / 65;
-  z-index: 9999;
+  z-index: 10000;
   position: absolute;
-  left: 0;
+  left: -100%;
   top: 0;
   height: 100%;
   overflow: hidden;
   background-color: #13171B;
+  font-family: Arial, Helvetica, sans-serif;
+  display: block !important;
+  transition: left 2s;
+}
+
+div#sidemenu:not(.gone) {
+  transition: left 1s;
+  left: 0;
 }
 
 div#sidemenu hr {
@@ -562,6 +581,7 @@ img.smfg {
 }
 
 div.coverall {
+  position: absolute;
   opacity: 0.5;
   background-color: black;
   width: 100%;
@@ -570,9 +590,132 @@ div.coverall {
 }
 
 div.smcontent {
-  padding: 0 30px;
+  padding-left: 30px;
+  padding-right: 5px;
 }
 
 div.smcontent p {
   line-height: 30px;
+  margin: 0;
+}
+
+div.smcontent div.sm_div {
+  margin: 3px;
+  line-height: 30px;
+  border-radius: 4px;
+  padding: 5px;
+  cursor: pointer;
+}
+
+div.smcontent div.sm_div:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+div.smcontent div.sm_div.sm_active {
+  background-color: #ceb641;
+  color: #13171B;
+  font-weight: 600;
+}
+
+.sm_icon {
+  font-size: 24px;
+  float: left;
+  margin: 0;
+  margin-right: 35px !important;
+  font-weight: 500;
+}
+
+img.sm_icon {
+  width: 24px;
+  height: 24px;
+  position: relative;
+  top: 15px;
+  transform: translate(0, -50%);
+}
+
+div.sm_switch {
+  margin: 10px;
+  margin-left: 13px;
+  height: 30px;
+  cursor: pointer;
+}
+
+p#sm_sfw {
+  float: left;
+}
+
+
+
+.switch {
+  float: right;
+  width: 30px;
+  border-radius: 30px;
+  height: 15px;
+  background-color: #5E5E5E;
+  margin-top: 7.5px;
+  position: relative;
+}
+
+.switch.active {
+  background-color: #776A2B;
+}
+
+.innerswitch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background-color: #323232;
+  transform: translate(-2.5px, -2.5px);
+}
+
+.innerswitch.active {
+  background-color: #CAB240;
+  transform: translate(12.5px, -2.5px);
+}
+
+
+
+div.dc_div {
+  text-align: center;
+}
+
+p.dc_text {
+  color: #E1E1E1;
+}
+
+div.dc_category {
+  padding: 8px;
+  border: 1px solid #222931;
+  border-radius: 12px;
+  background-color: #171A1f;
+  margin-bottom: 20px;
+}
+
+p.dc_header {
+  text-align: left;
+  margin: 0;
+  color: #CEB642;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+button.dc_btn {
+  background-color: #D9980D;
+  border: none;
+  border-radius: 4px;
+  width: 100%;
+  height: 35px;
+  margin: 6px 0;
+  font-family: "Nunito", sans-serif;
+  color: white;
+  position: relative;
+  cursor: pointer;
+}
+
+button.dc_btn .glyph-full {
+  position: absolute;
+  left: 0;
+  font-size: 23px;
+  margin-left: 4px;
+  transform: translate(0, -3.75px);
 }

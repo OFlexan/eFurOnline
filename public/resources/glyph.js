@@ -41,6 +41,12 @@ const Glyph = (() => {
 					}
 					return f;
 				},
+				reverseIcon: function(s) {
+					var o = Object.keys(glyphs);
+					for (var i = 0; i < o.length; i++) {
+						if (glyphs[o[i]] == s) return o[i];
+					}
+				},
 				getGlyphs: function() {
 					return glyphs;
 				},

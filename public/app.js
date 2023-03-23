@@ -3,11 +3,13 @@ Parse.serverURL = "https://api.efur.app/parse";
 
 var AppData = {
   mode: 2,
-  posts: []
+  posts: [],
+  height: 2000
 };
 
 var View = {
-  switch: function(id, skipLoad) {
+  switch: function(id, skipLoad, flags) {
+    resetPage(id, flags);
     var v = document.querySelector(".view");
     if (v) {
       v.classList.remove("view");
@@ -64,9 +66,8 @@ var View = {
 }
 
 async function login(skipLogin, isGuest) {
-  if (!skipLogin && document.querySelector("#safemode").checked) {
-    AppData.mode = 0;
-    localStorage.setItem("efur$mode", AppData.mode);
+  if (!skipLogin && !document.querySelector("#safemode").checked) {
+    localStorage.setItem("efur$mode", 2);
   }
   View.switch("load");
   document.querySelector("#loadstatus").innerText = "Fetching account";
@@ -90,32 +91,95 @@ async function login(skipLogin, isGuest) {
   profileLoaded();
 
   document.querySelector("#loadstatus").innerText = "Fetching configuration";
-  document.querySelector("#loadbar").value = 75;
+  document.querySelector("#loadbar").value = 50;
   AppData.config = (await Parse.Config.get()).attributes;
   
   document.querySelector("#loadstatus").innerText = "Fetching account settings";
-  document.querySelector("#loadbar").value = 100;
+  document.querySelector("#loadbar").value = 75;
   AppData.settings = await Parse.Cloud.run("getUserSettings");
 
   feed();
 }
 
-async function feed() {
-  View.switch("new");
-  AppData.lastDate = await loadPosts(AppData.lastDate);
+async function feed(flags) {
+  delete AppData.lastDate;
+  View.switch("new", undefined, flags);
+  AppData.lastDate = await loadPosts(await Parse.Cloud.run("getNewPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
   var t = false;
   document.querySelector("mobile-app").onscroll = async () => {
     if (!View.ensure("new")) return;
-    if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - 2000) {
+    if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - AppData.height) {
       t = true;
-      AppData.lastDate = await loadPosts(AppData.lastDate);
+      AppData.lastDate = await loadPosts(await Parse.Cloud.run("getNewPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
       t = false;
     }
   };
 }
 
-async function loadPosts(date) {
-  var posts = await Parse.Cloud.run("getNewPosts", {r:AppData.mode,d:date});
+async function following() {
+  delete AppData.lastDate;
+  View.switch("following");
+  AppData.lastDate = await loadPosts(await Parse.Cloud.run("getFollowingPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
+  var t = false;
+  document.querySelector("mobile-app").onscroll = async () => {
+    if (!View.ensure("following")) return;
+    if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - AppData.height) {
+      t = true;
+      AppData.lastDate = await loadPosts(await Parse.Cloud.run("getFollowingPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
+      t = false;
+    }
+  };
+}
+
+async function discover_category(cat) {
+  delete AppData.lastDate;
+  setupBackBar("Posts in " + cat.n);
+  View.switch("discover_cat");
+  AppData.lastDate = await loadPosts(await Parse.Cloud.run("getPostsInCategory", {r:AppData.mode,d:AppData.lastDate,t:cat.i}), AppData.lastDate);
+  var t = false;
+  document.querySelector("mobile-app").onscroll = async () => {
+    if (!View.ensure("discover_cat")) return;
+    if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - AppData.height) {
+      t = true;
+      AppData.lastDate = await loadPosts(await Parse.Cloud.run("getPostsInCategory", {r:AppData.mode,d:AppData.lastDate,t:cat.i}), AppData.lastDate);
+      t = false;
+    }
+  };
+}
+
+async function news() {
+  delete AppData.lastDate;
+  View.switch("news");
+  AppData.lastDate = await loadPosts(await Parse.Cloud.run("getNewsPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
+  var t = false;
+  document.querySelector("mobile-app").onscroll = async () => {
+    if (!View.ensure("news")) return;
+    if (!t && document.querySelector("mobile-app").scrollTop + window.innerHeight >= document.querySelector("mobile-app").scrollHeight - AppData.height) {
+      t = true;
+      AppData.lastDate = await loadPosts(await Parse.Cloud.run("getNewsPosts", {r:AppData.mode,d:AppData.lastDate}), AppData.lastDate);
+      t = false;
+    }
+  };
+}
+
+function setupBackBar(txt) {
+  var v = View.get().id.replace("doc", "");
+  var s = document.querySelector("mobile-app").scrollTop;
+  document.querySelector("#backheader").innerText = txt;
+  document.querySelector("#backsvg").onclick = ((v, s) => () => {
+    View.switch(v, true);
+    document.querySelector("mobile-app").scrollTop = s;
+  })(v, s);
+}
+
+async function loadPost(post, user) {
+  delete AppData.lastDate;
+  setupBackBar(user + "'s post");
+  View.switch("newpost");
+  AppData.lastDate = await loadPosts(await Parse.Cloud.run("getSinglePost", {r:AppData.mode,d:AppData.lastDate,p:post}), AppData.lastDate);
+}
+
+async function loadPosts(posts, date) {
   for (var i = 0; i < posts.p.length; i++) {
     posts.p[i] = unpackObject(posts.p[i]);
     posts.p[i].u = unpackObject(posts.p[i].u);
@@ -226,7 +290,7 @@ async function loadPosts(date) {
         // image
         var item = document.createElement("img");
         item.className = "image";
-        item.src = image;
+        item.src = image.endsWith(".gif") ? posts.p[i].data.f : image;
         item.onclick = ((image) => () => loadImage(image))(posts.p[i].data.f);
         post.appendChild(item);
       }
@@ -387,35 +451,38 @@ async function loadPosts(date) {
     var toolbar = document.createElement("div");
     toolbar.className = "posttoolbar";
 
-    var heartSvg = document.createElement("div");
-    heartSvg.className = "favcontainer";
-    heartSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-41.625938415527344 -55.81906509399414 424.2640686035156 424.2640686035156" height="26" width="28"><defs><g id="heart"><path d="M0 200 v-200 h200a100,100 90 0,1 0,200a100,100 90 0,1 -200,0z"></path></g></defs><use xlink:href="#heart" id="favtmp" fill="' + (favorited ? "#E70303" : "none") + '" stroke="#E70303" stroke-width="40" transform="rotate(225,150,121)"></use></svg>';
+    var heartCon = document.createElement("div");
+    heartCon.className = "btncontainer";
+    var heartSvg = document.createElement("p");
+    heartSvg.className = posts.f.includes(id) ? "favcontainer svgcontainer glyph-full favorited" : "favcontainer svgcontainer glyph-outline";
+    heartSvg.innerText = posts.f.includes(id) ? AppData.app.glyphs.favorited : AppData.app.glyphs.favorite;
     var heart = document.createElement("p");
-    var innerSvg = heartSvg.querySelector("#favtmp");
-    innerSvg.id = "";
-    heartSvg.onclick = ((innerSvg, id, heart) => async () => {
-      if (innerSvg.getAttribute("fill") != "#E70303") {
-        innerSvg.setAttribute("fill", "#E70303");
+    heartCon.onclick = ((innerSvg, id, like) => async () => {
+      if (!innerSvg.classList.contains("favorited")) {
+        innerSvg.className = "favcontainer svgcontainer glyph-full favorited";
+        innerSvg.innerText = AppData.app.glyphs.favorited;
+        like.innerText = +like.innerText + 1;
         // favorite
         var r = await Parse.Cloud.run("favPost", {a: true, p: id, z: AppData.app.version.api[0]});
-        heart.innerText = r.f ?? 0;
-        innerSvg.setAttribute("fill", r.g ? "#E70303" : "none");
+        like.innerText = r.f ?? 0;
         return;
       }
-      innerSvg.setAttribute("fill", "none");
+      innerSvg.className = "favcontainer svgcontainer glyph-outline";
+      innerSvg.innerText = AppData.app.glyphs.favorite;
+      like.innerText = +like.innerText - 1;
       // unfavorite
       var r = await Parse.Cloud.run("favPost", {a: false, p: id, z: AppData.app.version.api[0]});
-      heart.innerText = r.f ?? 0;
-      innerSvg.setAttribute("fill", r.g ? "#E70303" : "none");
-    })(innerSvg, id, heart);
+      like.innerText = r.f ?? 0;
+    })(heartSvg, id, heart);
     heart.className = "favcount";
     heart.innerText = favorites ?? 0;
-    heartSvg.appendChild(heart);
     
-    var commentSvg = document.createElement("div");
-    commentSvg.className = "favcontainer";
-    commentSvg.innerHTML = '<svg class="favs" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" viewBox="-15 -15 310 320" height="26" width="28"><defs><g id="comment"><path d="M0 20c0-10 10-20 20-20l240 0c10 0 20 10 20 20l0 230L240 210l-220 0c-10 0-20-10-20-20l0-170M60 60l160 0M60 150l160 0M60 105l160 0"></path></g></defs><use xlink:href="#comment" fill="none" stroke="white" stroke-width="30"></use></svg>';
-    commentSvg.onclick = ((id, post, hasImg, title, header) => () => {
+    var commentCon = document.createElement("div");
+    commentCon.className = "btncontainer";
+    var commentSvg = document.createElement("p");
+    commentSvg.className = "svgcontainer glyph-outline";
+    commentSvg.innerText = AppData.app.glyphs.comment;
+    commentCon.onclick = ((id, post, hasImg, title, header) => () => {
       View.switch("post");
       post.classList.add("diff");
       var h = post.querySelector(".profheader");
@@ -425,6 +492,7 @@ async function loadPosts(date) {
       post.removeChild(h);
       if (hasImg) {
         var img = post.querySelector("img");
+        if (!img) img = post.querySelector("video");
         post.removeChild(img);
         post.innerHTML = "";
         post.appendChild(img);
@@ -445,14 +513,17 @@ async function loadPosts(date) {
     var comment = document.createElement("p");
     comment.className = "favcount";
     comment.innerText = comments ?? 0;
-    commentSvg.appendChild(comment);
 
-    toolbar.appendChild(heartSvg);
-    toolbar.appendChild(commentSvg);
+    heartCon.appendChild(heartSvg);
+    heartCon.appendChild(heart);
+    commentCon.appendChild(commentSvg);
+    commentCon.appendChild(comment);
+    toolbar.appendChild(heartCon);
+    toolbar.appendChild(commentCon);
     // favorites, comments, info
     post.appendChild(toolbar);
 
-    document.querySelector("#posts").appendChild(post);
+    View.get().querySelector(".postcon").appendChild(post);
     date = +posts.p[i].createdAt;
   }
   return date;
@@ -542,6 +613,7 @@ async function loadComments(sub, id) {
 
 async function loadProfile(id) {
   var v = View.get().id.replace("doc", "");
+  var s = document.querySelector("mobile-app").scrollTop;
   View.switch("profile");
   var profile = unpackObject(await Parse.Cloud.run("getUserProfile", {u: id}));
   for (var i = 0; i < profile.ia.length; i++) profile.ia[i] = unpackObject(profile.ia[i]);
@@ -552,7 +624,10 @@ async function loadProfile(id) {
   view.querySelector(".dp_background").onclick = () => loadImage(view.querySelector(".dp_background").src);
   view.querySelector(".dp_foreground").src = profile.a ? profile.a.p : "resources/user_icon.png";
   view.querySelector(".dp_foreground").onclick = () => loadImage(view.querySelector(".dp_foreground").src);
-  view.querySelectorAll(".dp_tsvgs")[0].onclick = ((v) => () => View.switch(v, true))(v);
+  view.querySelectorAll(".dp_tsvgs")[0].onclick = ((v, s) => () => {
+    View.switch(v, true);
+    document.querySelector("mobile-app").scrollTop = s;
+  })(v, s);
   view.querySelector(".dp_name").innerText = profile.u;
   view.querySelectorAll(".dp_count")[0].innerText = profile.c;
   view.querySelectorAll(".dp_count")[1].innerText = profile.d;
@@ -563,11 +638,13 @@ async function loadProfile(id) {
 
 function loadImage(image) {
   var v = View.get().id.replace("doc", "");
+  var s = document.querySelector("mobile-app").scrollTop;
   View.switch("image");
   View.get().querySelector("img").src = image;
-  View.get().onclick = ((v) => () => {
+  View.get().onclick = ((v, s) => () => {
     View.switch(v, true);
-  })(v);
+    document.querySelector("mobile-app").scrollTop = s;
+  })(v, s);
 }
 
 function registerSelectionbar(bar) {
@@ -616,15 +693,39 @@ function formatDate(time, format) {
 }
 
 function profileLoaded() {
-  var c = () => {
-    loadProfile(AppData.user.id);
-    document.querySelector("#sidemenu").classList.add("hidden");
-    document.querySelector(".coverall").classList.add("hidden");
-  };
+  var c = () => loadProfile(AppData.user.id);
   document.querySelector(".smbg").src = AppData.user.b ? AppData.user.b.p : "resources/user_background.png";
   document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
   document.querySelector(".smbg").onclick = c;
   document.querySelector(".smfg").onclick = c;
+  
+  var s = document.querySelector(".sm_switch .switch");
+  var i = document.querySelector(".sm_switch .switch .innerswitch");
+  if (AppData.mode != 0) {
+    s.classList.remove("active");
+    i.classList.remove("active");
+  }
+  document.querySelector(".sm_switch").onclick = () => {
+    if (s.classList.contains("active")) {
+      s.classList.remove("active");
+      i.classList.remove("active");
+      AppData.mode = 2;
+      localStorage.setItem("efur$mode", 2);
+      feed(1);
+      return;
+    }
+    s.classList.add("active");
+    i.classList.add("active");
+    AppData.mode = 0;
+    localStorage.setItem("efur$mode", 0);
+    feed(1);
+  };
+
+  document.querySelector(".sm_new").onclick = () => feed();
+  document.querySelector(".sm_follow").onclick = () => following();
+  document.querySelector(".sm_discover").onclick = () => View.switch("discover");
+  document.querySelector(".sm_news").onclick = () => news();
+  document.querySelector(".sm_profile").onclick = c;
 }
 
 function checkMobile() {
@@ -632,3 +733,40 @@ function checkMobile() {
   (function(a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4))) check = true; })(navigator.userAgent || navigator.vendor || window.opera);
   return check;
 };
+
+function resetPage(id, flags) {
+  if (flags != 1) {
+    document.querySelector("#sidemenu").classList.add("gone");
+    document.querySelector(".coverall").classList.add("hidden");
+  }
+  var x = document.querySelectorAll(".sm_active");
+  for (var i = 0; i < x.length; i++) x[i].classList.remove("sm_active");
+
+  if (id == "new") {
+    document.querySelector("#appheader").innerText = "New";
+    document.querySelector(".sm_new").classList.add("sm_active");
+    return;
+  }
+  if (id == "following") {
+    document.querySelector("#appheader").innerText = "Following";
+    document.querySelector(".sm_follow").classList.add("sm_active");
+    return;
+  }
+  if (id == "discover") {
+    document.querySelector("#appheader").innerText = "Discover";
+    document.querySelector(".sm_discover").classList.add("sm_active");
+    return;
+  }
+  if (id == "news") {
+    document.querySelector("#appheader").innerText = "News";
+    document.querySelector(".sm_discover").classList.add("sm_active");
+    return;
+  }
+}
+
+function logOut() {
+  Parse.User.logOut();
+  localStorage.removeItem("efur$!guest");
+  localStorage.removeItem("efur$mode");
+  location.reload();
+}

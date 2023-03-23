@@ -17,24 +17,63 @@
         <p id="sidemenusvg" class="glyph-outline" glyph="menu"></p>
         <p id="appheader">eFur</p>
       </div>
-      <div id="sidemenu" class="hidden">
+      <div id="sidemenu" class="gone">
         <img class="smbg" src="resources/user_background.png">
         <img class="smfg" src="resources/user_icon.png">
         <div class="smcontent">
-          <p id="sm_sfw">SFW Mode</p>
+          <div class="sm_switch">
+            <p id="sm_sfw" class="sm_text">SFW mode</p>
+            <div class="switch active">
+              <div class="innerswitch active"></div>
+            </div>
+          </div>
           <hr>
-          <p id="sm_follow">Following</p>
-          <p id="sm_new">New</p>
-          <p id="sm_discover">Discover</p>
-          <p id="sm_profile">My profile</p>
+          <div class="sm_follow sm_div">
+            <p class="sm_icon glyph-outline" glyph="follow_the_signs"></p>
+            <p id="sm_text">Following</p>
+          </div>
+          <div class="sm_new sm_div">
+            <p class="sm_icon glyph-outline" glyph="fiber_new"></p>
+            <p id="sm_text">New</p>
+          </div>
+          <div class="sm_discover sm_div">
+            <p class="sm_icon glyph-outline" glyph="wb_incandescent"></p>
+            <p id="sm_text">Discover</p>
+          </div>
+          <div class="sm_profile sm_div">
+            <img class="sm_icon" src="resources/user_icon.png">
+            <p id="sm_text">My profile</p>
+          </div>
           <hr>
-          <p id="sm_chat">Messages</p>
-          <p id="sm_notifs">Notifications</p>
-          <p id="sm_news">News</p>
+          <div class="sm_chat sm_div">
+            <p class="sm_icon glyph-outline" glyph="chat_bubble_outline"></p>
+            <p id="sm_text">Messages</p>
+          </div>
+          <div class="sm_notifs sm_div">
+            <p class="sm_icon glyph-outline" glyph="notifications"></p>
+            <p id="sm_text">Notifications</p>
+          </div>
+          <div class="sm_news sm_div">
+            <p class="sm_icon glyph-outline" glyph="new_releases"></p>
+            <p id="sm_text">News</p>
+          </div>
           <hr>
-          <p id="sm_settings">Settings</p>
-          <p id="sm_support">About & support</p>
+          <div class="sm_settings sm_div">
+            <p class="sm_icon glyph-full" glyph="settings"></p>
+            <p id="sm_text">Settings</p>
+          </div>
+          <div class="sm_support sm_div">
+            <p class="sm_icon glyph-outline" glyph="support"></p>
+            <p id="sm_text">About & support</p>
+          </div>
         </div>
+      </div>
+    </desktop-app>
+    
+    <desktop-app id="backlayer" class="hidden">
+      <div class="header">
+        <p id="backsvg" class="glyph-outline" glyph="arrow_back"></p>
+        <p id="backheader"></p>
       </div>
     </desktop-app>
 
@@ -60,7 +99,57 @@
       
       <view id="docnew" class="hiddenview">
         <info>reset=#posts;include=#contentlayer</info>
-        <div id="posts"></div>
+        <div id="posts" class="postview postcon"></div>
+      </view>
+      
+      <view id="docfollowing" class="hiddenview">
+        <info>reset=#postsf;include=#contentlayer</info>
+        <div id="postsf" class="postview postcon"></div>
+      </view>
+      
+      <view id="docdiscover" class="hiddenview">
+        <info>include=#contentlayer</info>
+        <div class="dc_div postview">
+          <p class="dc_text">This area is a work in progress :&#41;</p>
+          <p class="dc_text">Here you will be able to search for tags, posts, users and more</p>
+          <div class="dc_category">
+            <p class="dc_header">Posts</p>
+            <button class="dc_btn" id="dc_btn_category">
+              <span class="glyph-full" glyph="category"></span>
+              FIND BY CATEGORY
+            </button>
+            <button class="dc_btn" id="dc_btn_tag">
+              <span class="glyph-full" glyph="grid_3x3"></span>
+              FIND BY TAG
+            </button>
+          </div>
+          <div class="dc_category">
+            <p class="dc_header">Users</p>
+            <button class="dc_btn" id="dc_btn_username">
+              <span class="glyph-full" glyph="search"></span>
+              FIND BY USERNAME
+            </button>
+            <button class="dc_btn" id="dc_btn_browse">
+              <span class="glyph-full" glyph="list"></span>
+              BROWSE USERS
+            </button>
+          </div>
+        </div>
+      </view>
+      
+      <view id="docdiscover_cat" class="hiddenview">
+        <info>reset=#postsdc;include=#backlayer</info>
+        <div id="postsdc" class="postview postcon"></div>
+      </view>
+      
+      <view id="docnews" class="hiddenview">
+        <info>reset=#postsn;include=#contentlayer</info>
+        <div id="postsn" class="postview postcon"></div>
+      </view>
+      
+      <view id="docnewpost" class="hiddenview">
+        <info>reset=#inpost;include=#backlayer</info>
+        <div id="inpost" class="postview postcon"></div>
       </view>
       
       <view id="docpost" class="hiddenview">
