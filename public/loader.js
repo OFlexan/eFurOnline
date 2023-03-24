@@ -8,6 +8,14 @@ document.querySelector(".coverall").onclick = function() {
   document.querySelector("#sidemenu").classList.add("gone");
   document.querySelector(".coverall").classList.add("hidden");
 };
+document.querySelector("#postsvg").onclick = function() {
+  postCreation(0);
+};
+var expands = document.querySelectorAll(".expandinput");
+for (var i = 0; i < expands.length; i++) expands[i].addEventListener("input", ((textarea) => () => {
+  textarea.style.height = "";
+  textarea.style.height = Math.min(textarea.scrollHeight - 30, 200) + "px";
+})(expands[i]));
 
 (async function() {
   await Glyph.create("outline").prepare("resources/gglyphoutline.ttf", 0xE000);

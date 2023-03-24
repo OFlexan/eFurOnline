@@ -1,3 +1,9 @@
+# ERRORS
+- `{code: 141, error: "no"}`  
+My favorite error. It usually has to do with leaving out the app version ID (parameter `z`).
+- `{code: 142, error: "Incorrect text data"}`  
+The content or title is not long enough. Related to creating posts.
+
 # FUNC: getFollowingPostCount
 Gets the amount of unread following posts.
 
@@ -43,3 +49,21 @@ Likes or unlikes a comment.
 1. `a`: `true` to like, `false` to unlike
 2. `c`: comment object ID
 3. `z`: app version ID
+
+# FUNC: createPost2
+Creates a story post.
+1. `c`: Array of category indexes (or an empty array)
+2. (optional) `e`: Original artist / copyright
+3. (optional) `f`: Title
+4. (optional) `g`: Content
+5. (optional) `i`: Description
+6. `r`: Rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+7. (optional) `s`: Link to source
+8. `t`: Array of tag strings (or an empty array)
+9. `u`: Unknown, it's value appears to be 1
+10. (optional) `x`: Wether to hide the post from new
+11. `z`: app version ID
+
+# FUNC: deletePost
+Deletes a post.
+1. `p`: post object ID

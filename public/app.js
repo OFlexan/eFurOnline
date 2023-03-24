@@ -162,7 +162,14 @@ async function news() {
   };
 }
 
-function setupBackBar(txt) {
+function postCreation(type) {
+  setupBackBar("Create a post", "UPLOAD", () => {
+    handleUpload(type);
+  });
+  View.switch("postcreation");
+}
+
+function setupBackBar(txt, btntext, btnaction) {
   var v = View.get().id.replace("doc", "");
   var s = document.querySelector("mobile-app").scrollTop;
   document.querySelector("#backheader").innerText = txt;
@@ -170,6 +177,13 @@ function setupBackBar(txt) {
     View.switch(v, true);
     document.querySelector("mobile-app").scrollTop = s;
   })(v, s);
+  if (btntext) {
+    document.querySelector("#custombtnsvg").innerText = btntext;
+    document.querySelector("#custombtnsvg").onclick = btnaction;
+  } else {
+    document.querySelector("#custombtnsvg").innerText = "";
+    delete document.querySelector("#custombtnsvg").onclick;
+  }
 }
 
 async function loadPost(post, user) {
@@ -698,6 +712,7 @@ function profileLoaded() {
   document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
   document.querySelector(".smbg").onclick = c;
   document.querySelector(".smfg").onclick = c;
+  document.querySelector(".smname").onclick = c;
   
   var s = document.querySelector(".sm_switch .switch");
   var i = document.querySelector(".sm_switch .switch .innerswitch");
@@ -736,8 +751,10 @@ function checkMobile() {
 
 function resetPage(id, flags) {
   if (flags != 1) {
-    document.querySelector("#sidemenu").classList.add("gone");
-    document.querySelector(".coverall").classList.add("hidden");
+    setTimeout(() => {
+      document.querySelector("#sidemenu").classList.add("gone");
+      document.querySelector(".coverall").classList.add("hidden");
+    }, 1);
   }
   var x = document.querySelectorAll(".sm_active");
   for (var i = 0; i < x.length; i++) x[i].classList.remove("sm_active");
