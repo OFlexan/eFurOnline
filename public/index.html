@@ -171,69 +171,7 @@
       </view>
 
       <view id="docpostcreation" class="hiddenview">
-        <info>include=#backlayer</info>
-        <div id="pc_story" class="postview">
-          <textarea class="input" id="pc_content" placeholder="Post content" maxlength="200000"></textarea>
-          <p id="pc_c_content" class="inputcounter input_content">0/200000</p>
-          <input type="text" class="input" id="pc_title" placeholder="Post title" maxlength="240">
-          <p id="pc_o_title" class="inputoptional input_title">optional</p>
-          <p id="pc_c_title" class="inputcounter input_title">0/240</p>
-          <textarea class="input expandinput" id="pc_desc" placeholder="Post description" maxlength="50000"></textarea>
-          <p id="pc_o_desc" class="inputoptional input_title">optional</p>
-          <p id="pc_c_desc" class="inputcounter input_title">0/50000</p>
-          <p class="pc_small"><span class="glyph-outline" glyph="priority_high"></span>Remember to follow the <a href="https://efur.app/content-policy/" target="_blank" class="policy">Content policy</a></p>
-          <p class="pc_header">Post details</p>
-          <p class="pc_sub">Filtering</p>
-          <p class="pc_text">This post is rated:</p>
-          <div id="pc_r_safe" class="polloption pc_radio">
-            <div class="voteopt active">
-              <div class="voteoptin"></div>
-            </div>
-            <p class="vote">Safe</p>
-            <br>
-          </div>
-          <div id="pc_r_suggestive" class="polloption pc_radio">
-            <div class="voteopt">
-              <div class="voteoptin disabled"></div>
-            </div>
-            <p class="vote">Suggestive</p>
-            <br>
-          </div>
-          <div id="pc_r_explicit" class="polloption pc_radio">
-            <div class="voteopt">
-              <div class="voteoptin disabled"></div>
-            </div>
-            <p class="vote">Explicit</p>
-            <br>
-          </div>
-          <p class="pc_sfwdesc pc_text">Safe - suitable for all ages.</p>
-          <p class="pc_sub">Categories</p>
-          <p class="catpicker">
-            STORIES / TEXT
-            <span class="glyph-full" glyph="edit"></span>
-          </p>
-          <p class="pc_sub">Details</p>
-          <input type="text" class="input" id="pc_artist" placeholder="Original creator/artist" maxlength="50">
-          <input type="text" class="input" id="pc_source" placeholder="Link to source (https://...)" maxlength="120">
-          <p class="pc_sub">Tags</p>
-          <p class="pc_gray">Enter up to 100 tags describing the post</p>
-          <p class="pc_text pc_dark">Seperate tags with a space. Use an underscore _ if a tag contains a space. Example: fox anthro male outside cute white_fur</p>
-          <input type="text" class="input" id="pc_tags" placeholder="Enter tags seperated by spaces" maxlength="50">
-          <p id="pc_c_tags" class="inputcounter input_title">0/50</p>
-          <p class="pc_sub">Options</p>
-          <div id="pc_hidepost" class="switchcon pc_switch">
-            <p class="switchtext">Hide post from New</p>
-            <div class="switch">
-              <div class="innerswitch"></div>
-            </div>
-          </div>
-          <div id="pc_prevent" class="switchcon pc_switch hidden">
-            <p class="switchtext">Prevent downloads</p>
-            <div class="switch">
-              <div class="innerswitch"></div>
-            </div>
-          </div>
-        </div>
+        <info>include=#backlayer;copy=#pcpreset</info>
       </view>
     </mobile-app>
 
@@ -241,6 +179,71 @@
 
     <div id="imagepreset" class="hidden">
       <img class="fullimage">
+    </div>
+
+    <div id="pcpreset" class="hidden">
+      <div id="pc_story" class="postview">
+        <textarea class="input" id="pc_content" placeholder="Post content" maxlength="200000"></textarea>
+        <p id="pc_c_content" class="inputcounter input_content">0/200000</p>
+        <input type="text" class="input" id="pc_title" placeholder="Post title" maxlength="240">
+        <p id="pc_o_title" class="inputoptional input_title">optional</p>
+        <p id="pc_c_title" class="inputcounter input_title">0/240</p>
+        <textarea class="input expandinput" id="pc_desc" placeholder="Post description" maxlength="50000"></textarea>
+        <p id="pc_o_desc" class="inputoptional input_title">optional</p>
+        <p id="pc_c_desc" class="inputcounter input_title">0/50000</p>
+        <p class="pc_small"><span class="glyph-outline" glyph="priority_high"></span>Remember to follow the <a href="https://efur.app/content-policy/" target="_blank" class="policy">Content policy</a></p>
+        <p class="pc_header">Post details</p>
+        <p class="pc_sub">Filtering</p>
+        <p class="pc_text">This post is rated:</p>
+        <div id="pc_r_safe" class="polloption pc_radio">
+          <div class="voteopt active">
+            <div class="voteoptin"></div>
+          </div>
+          <p class="vote">Safe</p>
+          <br>
+        </div>
+        <div id="pc_r_suggestive" class="polloption pc_radio">
+          <div class="voteopt">
+            <div class="voteoptin disabled"></div>
+          </div>
+          <p class="vote">Suggestive</p>
+          <br>
+        </div>
+        <div id="pc_r_explicit" class="polloption pc_radio">
+          <div class="voteopt">
+            <div class="voteoptin disabled"></div>
+          </div>
+          <p class="vote">Explicit</p>
+          <br>
+        </div>
+        <p class="pc_sfwdesc pc_text">Safe - suitable for all ages.</p>
+        <p class="pc_sub">Categories</p>
+        <p class="catpicker">
+          STORIES / TEXT
+          <span class="glyph-full" glyph="edit"></span>
+        </p>
+        <p class="pc_sub">Details</p>
+        <input type="text" class="input" id="pc_artist" placeholder="Original creator/artist" maxlength="50">
+        <input type="text" class="input" id="pc_source" placeholder="Link to source (https://...)" maxlength="120">
+        <p class="pc_sub">Tags</p>
+        <p class="pc_gray">Enter up to 100 tags describing the post</p>
+        <p class="pc_text pc_dark">Seperate tags with a space. Use an underscore _ if a tag contains a space. Example: fox anthro male outside cute white_fur</p>
+        <input type="text" class="input" id="pc_tags" placeholder="Enter tags seperated by spaces" maxlength="50">
+        <p id="pc_c_tags" class="inputcounter input_title">0/50</p>
+        <p class="pc_sub">Options</p>
+        <div id="pc_hidepost" class="switchcon pc_switch">
+          <p class="switchtext">Hide post from New</p>
+          <div class="switch">
+            <div class="innerswitch"></div>
+          </div>
+        </div>
+        <div id="pc_prevent" class="switchcon pc_switch hidden">
+          <p class="switchtext">Prevent downloads</p>
+          <div class="switch">
+            <div class="innerswitch"></div>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div id="profilepreset" class="hidden">

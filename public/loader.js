@@ -9,7 +9,7 @@ document.querySelector(".coverall").onclick = function() {
   document.querySelector(".coverall").classList.add("hidden");
 };
 document.querySelector("#postsvg").onclick = function() {
-  postCreation(0);
+  postCreation(1);
 };
 var expands = document.querySelectorAll(".expandinput");
 for (var i = 0; i < expands.length; i++) expands[i].addEventListener("input", ((textarea) => () => {

@@ -163,10 +163,84 @@ async function news() {
 }
 
 function postCreation(type) {
-  setupBackBar("Create a post", "UPLOAD", () => {
-    handleUpload(type);
-  });
+  // 1 = story, 0 = image
+  var cat = [];
+  setupBackBar("Create a post", "UPLOAD", undefined);
   View.switch("postcreation");
+  document.querySelector("#pc_content").oninput = function() {
+	  document.querySelector("#pc_c_content").innerText = this.value.length + "/200000";
+  };
+  document.querySelector("#pc_title").oninput = function() {
+	  document.querySelector("#pc_c_title").innerText = this.value.length + "/240";
+  };
+  document.querySelector("#pc_desc").oninput = function() {
+	  document.querySelector("#pc_c_desc").innerText = this.value.length + "/50000";
+  };
+  document.querySelector("#pc_tags").oninput = function() {
+	  document.querySelector("#pc_c_tags").innerText = this.value.length + "/50";
+  };
+
+  var group = [document.querySelector("#pc_r_safe"), document.querySelector("#pc_r_suggestive"), document.querySelector("#pc_r_explicit")];
+  var click = function() {
+	for (var i = 0; i < group.length; i++) {
+		if (group[i] == this) continue;
+      group[i].querySelector(".voteopt").classList.remove("active");
+      group[i].querySelector(".voteopt .voteoptin").classList.add("disabled");
+    }
+    this.querySelector(".voteopt").classList.add("active");
+    this.querySelector(".voteopt .voteoptin").classList.remove("disabled");
+  };
+  for (var i = 0; i < group.length; i++) group[i].onclick = click;
+  
+  document.querySelector("#pc_hidepost").onclick = () => {
+	var s = document.querySelector("#pc_hidepost").querySelector(".switch");
+	  var i = s.querySelector(".innerswitch");
+    if (s.classList.contains("active")) {
+      s.classList.remove("active");
+      i.classList.remove("active");
+      return;
+    }
+    s.classList.add("active");
+    i.classList.add("active");
+  };
+  
+  if (type == 1) {
+    document.querySelector("#pc_prevent").classList.remove("hidden");
+    document.querySelector("#pc_prevent").onclick = () => {
+    var s = document.querySelector("#pc_prevent").querySelector(".switch");
+      var i = s.querySelector(".innerswitch");
+      if (s.classList.contains("active")) {
+        s.classList.remove("active");
+        i.classList.remove("active");
+        return;
+      }
+      s.classList.add("active");
+      i.classList.add("active");
+    };
+  }
+
+  document.querySelector("#custombtnsvg").onclick = () => {
+    var r = 0;
+    for (var i = 0; i < group.length; i++) {
+      if (group[i].querySelector(".voteopt").classList.contains("active")) {
+        r = i;
+        break;
+      }
+    }
+    Parse.Cloud.run("createPost2", {
+      c: cat.length == 0 ? [13] : cat,
+      e: document.querySelector("#pc_artist").value.trim() != "" ? document.querySelector("#pc_artist").value : undefined,
+      f: document.querySelector("#pc_title").value.trim() != "" ? document.querySelector("#pc_title").value : undefined,
+      g: document.querySelector("#pc_content").value.trim() != "" ? document.querySelector("#pc_content").value : undefined,
+      i: document.querySelector("#pc_desc").value.trim() != "" ? document.querySelector("#pc_desc").value : undefined,
+      r: r,
+      s: document.querySelector("#pc_source").value.trim() != "" ? document.querySelector("#pc_source").value : undefined,
+      t: document.querySelector("#pc_tags").value.split(" ").filter((s) => s != ""),
+      u: type,
+      x: document.querySelector("#pc_hidepost .switch").classList.contains("active") ? true : undefined,
+      z: AppData.app.version.app[0]
+    });
+  };
 }
 
 function setupBackBar(txt, btntext, btnaction) {

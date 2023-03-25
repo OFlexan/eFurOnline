@@ -3,7 +3,7 @@
 2. ~~Fix multi polls' calculations~~
 3. ~~Add comments~~
 4. Style login page
-5. Add functionality (posts, comments, ~~favorites~~, etc.)
+5. Add functionality (~~posts~~, comments, ~~favorites~~, etc.)
 6. Add tooltip on polls
 7. Add @mentions in posts
 8. Finish discover tab
@@ -14,7 +14,8 @@
 13. Finish comments and replies
 14. Add info counters on menu drawer
 15. Add error/alert/prompt/options menu for Android input/output
-16. Add name under profile picture in menu drawer
+16. ~~Add name under profile picture in menu drawer~~
+17. Figure out how deleted comments work
 
 # Needed
 1. ~~Favorite function~~

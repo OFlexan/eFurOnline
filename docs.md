@@ -1,8 +1,12 @@
 # ERRORS
 - `{code: 141, error: "no"}`  
 My favorite error. It usually has to do with leaving out the app version ID (parameter `z`).
+- `{code: 141, error: "Text or title required!"}`  
+The content and title are empty. Related to creating posts.
 - `{code: 142, error: "Incorrect text data"}`  
 The content or title is not long enough. Related to creating posts.
+- `{code: 142, error: "Categories are wrong"}`  
+The array of categories is empty or has more than 3 entries. Related to creating posts.
 
 # FUNC: getFollowingPostCount
 Gets the amount of unread following posts.
@@ -50,9 +54,9 @@ Likes or unlikes a comment.
 2. `c`: comment object ID
 3. `z`: app version ID
 
-# FUNC: createPost2
+# FUNC: createPost2 (Story, u = 1)
 Creates a story post.
-1. `c`: Array of category indexes (or an empty array)
+1. `c`: Array of category indexes (can not be empty)
 2. (optional) `e`: Original artist / copyright
 3. (optional) `f`: Title
 4. (optional) `g`: Content
@@ -60,10 +64,41 @@ Creates a story post.
 6. `r`: Rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
 7. (optional) `s`: Link to source
 8. `t`: Array of tag strings (or an empty array)
-9. `u`: Unknown, it's value appears to be 1
+9. `u`: 1 (for story post)
 10. (optional) `x`: Wether to hide the post from new
 11. `z`: app version ID
+
+# FUNC: createPost2 (Image/GIF, u = 0)
+Creates an image post.
+1. `c`: Array of category indexes (can not be empty)
+2. (optional) `e`: Original artist / copyright
+3. (optional) `f`: Title
+4. (optional) `g`: Content
+5. (optional) `i`: Description
+6. `r`: Rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+7. (optional) `s`: Link to source
+8. `t`: Array of tag strings (or an empty array)
+9. `u`: 1 (for story post)
+10. (optional) `x`: Wether to hide the post from new
+11. `a`: Unknown, appears to be 284
+12. `b`: Unknown, appears to be 447
+13. `h`: A JSON structure, along the lines of:
+```
+{
+    "__type": "File",
+    "name": fileName,
+    "url": fileUrl
+}
+```
+13. `z`: app version ID
 
 # FUNC: deletePost
 Deletes a post.
 1. `p`: post object ID
+
+# FUNC: getQuota
+Gets the quota.
+
+# IMG UPLOAD
+Use Parse SDK to upload an image with filename `{app version ID}_{profile object ID}.jpg`.  
+It will respond with a name and a URL which can be used in the function `createPost2 (Image/GIF, u = 0)` as the parameter `h`.
