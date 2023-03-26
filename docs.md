@@ -80,8 +80,8 @@ Creates an image post.
 8. `t`: Array of tag strings (or an empty array)
 9. `u`: 1 (for story post)
 10. (optional) `x`: Wether to hide the post from new
-11. `a`: Unknown, appears to be 284
-12. `b`: Unknown, appears to be 447
+11. (optional) `a`: Unknown, appears to be 284 for my installation
+12. (optional) `b`: Unknown, appears to be 447 for my installation
 13. `h`: A JSON structure, along the lines of:
 ```
 {
@@ -90,7 +90,8 @@ Creates an image post.
     "url": fileUrl
 }
 ```
-13. `z`: app version ID
+14. `l`: Wether to prevent downloads
+15. `z`: app version ID
 
 # FUNC: deletePost
 Deletes a post.

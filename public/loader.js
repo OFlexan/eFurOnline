@@ -8,8 +8,12 @@ document.querySelector(".coverall").onclick = function() {
   document.querySelector("#sidemenu").classList.add("gone");
   document.querySelector(".coverall").classList.add("hidden");
 };
+document.querySelector(".coverall2").onclick = function() {
+  document.querySelector("#pc_select").classList.add("hidden");
+  document.querySelector(".coverall2").classList.add("hidden");
+}
 document.querySelector("#postsvg").onclick = function() {
-  postCreation(1);
+  postCreationMenu();
 };
 var expands = document.querySelectorAll(".expandinput");
 for (var i = 0; i < expands.length; i++) expands[i].addEventListener("input", ((textarea) => () => {

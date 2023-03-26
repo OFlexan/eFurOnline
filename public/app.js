@@ -162,7 +162,29 @@ async function news() {
   };
 }
 
-function postCreation(type) {
+function postCreationMenu() {
+  document.querySelector("#pc_select").classList.remove("hidden");
+  document.querySelector(".coverall2").classList.remove("hidden");
+}
+
+function postCreation(type, file) {
+  if (type == 0 && !file) {
+    document.body.onfocus = function() {
+        document.body.onfocus = undefined;
+        document.querySelector("#pc_select").classList.add("hidden");
+        document.querySelector(".coverall2").classList.add("hidden");
+        setTimeout(() => {
+          if (document.querySelector("#fileselector").value) {
+            var f = new Parse.File(AppData.app.version.app[0] + "_" + AppData.user.id + ".jpg", document.querySelector("#fileselector").files[0]);
+            f.save();
+            postCreation(type, f);
+            return;
+          }
+        }, 100);
+    };
+    document.querySelector("#fileselector").click();
+    return;
+  }
   // 1 = story, 0 = image
   var cat = [];
   setupBackBar("Create a post", "UPLOAD", undefined);
@@ -204,7 +226,7 @@ function postCreation(type) {
     i.classList.add("active");
   };
   
-  if (type == 1) {
+  if (type == 0) {
     document.querySelector("#pc_prevent").classList.remove("hidden");
     document.querySelector("#pc_prevent").onclick = () => {
     var s = document.querySelector("#pc_prevent").querySelector(".switch");
@@ -227,7 +249,7 @@ function postCreation(type) {
         break;
       }
     }
-    Parse.Cloud.run("createPost2", {
+    var opt = {
       c: cat.length == 0 ? [13] : cat,
       e: document.querySelector("#pc_artist").value.trim() != "" ? document.querySelector("#pc_artist").value : undefined,
       f: document.querySelector("#pc_title").value.trim() != "" ? document.querySelector("#pc_title").value : undefined,
@@ -239,7 +261,11 @@ function postCreation(type) {
       u: type,
       x: document.querySelector("#pc_hidepost .switch").classList.contains("active") ? true : undefined,
       z: AppData.app.version.app[0]
-    });
+    };
+    if (type == 0) {
+      opt.l = document.querySelector("#pc_prevent .switch").classList.contains("active") ? true : undefined
+    }
+    Parse.Cloud.run("createPost2", opt);
   };
 }
 
@@ -815,6 +841,13 @@ function profileLoaded() {
   document.querySelector(".sm_discover").onclick = () => View.switch("discover");
   document.querySelector(".sm_news").onclick = () => news();
   document.querySelector(".sm_profile").onclick = c;
+
+  document.querySelector("#pc_si_image").onclick = () => postCreation(0);
+  document.querySelector("#pc_si_camera").onclick = () => alert("Coming soon!");
+  document.querySelector("#pc_si_story").onclick = () => alert("Coming soon!"); //postCreation(1);
+  document.querySelector("#pc_si_poll").onclick = () => alert("Coming soon!");
+  document.querySelector("#pc_si_video").onclick = () => alert("Coming soon!");
+  document.querySelector("#pc_si_comic").onclick = () => alert("Coming soon!");
 }
 
 function checkMobile() {
@@ -828,6 +861,8 @@ function resetPage(id, flags) {
     setTimeout(() => {
       document.querySelector("#sidemenu").classList.add("gone");
       document.querySelector(".coverall").classList.add("hidden");
+      document.querySelector("#pc_select").classList.add("hidden");
+      document.querySelector(".coverall2").classList.add("hidden");
     }, 1);
   }
   var x = document.querySelectorAll(".sm_active");

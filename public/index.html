@@ -10,6 +10,8 @@
     <script src="resources/parse.min.js"></script>
   </head>
   <body>
+    <input type="file" id="fileselector" class="hidden">
+
     <desktop-app id="loadlayer" class="hidden"></desktop-app>
     
     <desktop-app id="contentlayer" class="hidden">
@@ -69,6 +71,29 @@
             <p class="sm_icon glyph-outline" glyph="support"></p>
             <p id="sm_text">About & support</p>
           </div>
+        </div>
+      </div>
+
+      <div id="pc_select" class="hidden">
+        <p class="pc_s_quota">Quota: 10 - Resets in 30 min</p>
+        <p class="pc_s_header">Create</p>
+        <div id="pc_si_image" class="pc_s_item">
+          <p><span class="glyph-full" glyph="image"></span>Image/GIF</p>
+        </div>
+        <div id="pc_si_camera" class="pc_s_item">
+          <p><span class="glyph-full" glyph="add_a_photo"></span>Camera</p>
+        </div>
+        <div id="pc_si_story" class="pc_s_item">
+          <p><span class="glyph-full" glyph="text_fields"></span>Story</p>
+        </div>
+        <div id="pc_si_poll" class="pc_s_item">
+          <p><span class="glyph-full" glyph="poll"></span>Poll</p>
+        </div>
+        <div id="pc_si_video" class="pc_s_item">
+          <p><span class="glyph-full" glyph="video_file"></span>Video</p>
+        </div>
+        <div id="pc_si_comic" class="pc_s_item">
+          <p><span class="glyph-full" glyph="question_mark"></span>Comic</p>
         </div>
       </div>
     </desktop-app>
@@ -307,6 +332,7 @@
     </div>
     
     <div class="coverall hidden"></div>
+    <div class="coverall2 hidden"></div>
     
     <script src="app.js"></script>
     <script src="loader.js" defer></script>

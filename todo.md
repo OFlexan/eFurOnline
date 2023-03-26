@@ -16,10 +16,13 @@
 15. Add error/alert/prompt/options menu for Android input/output
 16. ~~Add name under profile picture in menu drawer~~
 17. Figure out how deleted comments work
+18. Deal with hidden images (add badge)
+19. Add Moderator badge to moderators
+20. Make the post creation selector look good on desktop
 
 # Needed
 1. ~~Favorite function~~
-2. Post function
+2. ~~Post function~~
 3. Message related functions
 
 # 2 (done)

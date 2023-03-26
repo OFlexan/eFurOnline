@@ -624,7 +624,7 @@ p.smname {
   font-size: 18px;
 }
 
-div.coverall {
+div.coverall, div.coverall2 {
   position: absolute;
   opacity: 0.5;
   background-color: black;
@@ -904,4 +904,47 @@ p#pc_c_tags {
   text-align: right;
   margin-bottom: 10px;
   margin-right: 10px;
+}
+
+
+
+div#pc_select {
+  font-size: 18px;
+  position: absolute;
+  padding: 0 10%;
+  bottom: 0;
+  width: 80%;
+  z-index: 10000;
+  background-color: rgb(21, 24, 22);
+  border-top-left-radius: 32px;
+  border-top-right-radius: 32px;
+}
+
+p.pc_s_header {
+  font-weight: 600;
+}
+
+p.pc_s_quota {
+  font-size: 12px;
+  line-height: 18px;
+  float: right;
+}
+
+div.pc_s_item {
+  margin: 0 5%;
+  width: 40%;
+  float: left;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: center;
+}
+
+div.pc_s_item:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+div.pc_s_item p span.glyph-full {
+  font-size: 24px;
+  margin-right: 10px;
+  color: rgb(133, 196, 221);
 }
