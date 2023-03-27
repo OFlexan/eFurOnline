@@ -185,6 +185,11 @@
         <info>reset=#post;reset=#commentsection</info>
         <div id="post"></div>
         <div id="commentsection"></div>
+        <div id="commentmsg">
+          <img src="resources/user_icon.png" id="commentpfp">
+          <textarea class="simpleinput" placeholder="Write a comment" id="commentin" maxlength="512"></textarea>
+          <p class="glyph-full" glyph="add" id="commentadd"></p>
+        </div>
       </view>
       
       <view id="docprofile" class="hiddenview">
@@ -208,6 +213,8 @@
 
     <div id="pcpreset" class="hidden">
       <div id="pc_story" class="postview">
+        <img src="resources/user_background.png" id="pc_img" class="image hidden">
+        <p id="pc_imgdesc" class="hidden">unknown.png</p>
         <textarea class="input" id="pc_content" placeholder="Post content" maxlength="200000"></textarea>
         <p id="pc_c_content" class="inputcounter input_content">0/200000</p>
         <input type="text" class="input" id="pc_title" placeholder="Post title" maxlength="240">

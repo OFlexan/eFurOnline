@@ -173,14 +173,13 @@ function postCreation(type, file) {
         document.body.onfocus = undefined;
         document.querySelector("#pc_select").classList.add("hidden");
         document.querySelector(".coverall2").classList.add("hidden");
-        setTimeout(() => {
+        document.querySelector("#fileselector").onchange = function() {
           if (document.querySelector("#fileselector").value) {
-            var f = new Parse.File(AppData.app.version.app[0] + "_" + AppData.user.id + ".jpg", document.querySelector("#fileselector").files[0]);
-            f.save();
-            postCreation(type, f);
+            postCreation(type, document.querySelector("#fileselector").files[0]);
             return;
           }
-        }, 100);
+        };
+        setTimeout(() => document.querySelector("#fileselector").onchange = undefined, 1000);
     };
     document.querySelector("#fileselector").click();
     return;
@@ -239,9 +238,13 @@ function postCreation(type, file) {
       s.classList.add("active");
       i.classList.add("active");
     };
+    document.querySelector("#pc_img").classList.remove("hidden");
+    document.querySelector("#pc_imgdesc").classList.remove("hidden");
+    document.querySelector("#pc_img").src = URL.createObjectURL(file);
+    document.querySelector("#pc_imgdesc").innerText = file.name ?? "unknown.png";
   }
 
-  document.querySelector("#custombtnsvg").onclick = () => {
+  document.querySelector("#custombtnsvg").onclick = async () => {
     var r = 0;
     for (var i = 0; i < group.length; i++) {
       if (group[i].querySelector(".voteopt").classList.contains("active")) {
@@ -263,9 +266,27 @@ function postCreation(type, file) {
       z: AppData.app.version.app[0]
     };
     if (type == 0) {
-      opt.l = document.querySelector("#pc_prevent .switch").classList.contains("active") ? true : undefined
+      opt.l = document.querySelector("#pc_prevent .switch").classList.contains("active") ? true : undefined;
+      var f = new Parse.File(AppData.app.version.app[0] + "_" + AppData.user.id + ".jpg", file);
+      await f.save();
+      opt.h = {
+        "__type": "File",
+        "name": f._name,
+        "url": f._url
+      };
+      var dims = await ((dataURL) => new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => resolve({
+          height: img.height,
+          width: img.width
+        });
+        img.src = dataURL;
+      }))(URL.createObjectURL(file));
+      opt.a = dims.width;
+      opt.b = dims.height;
     }
-    Parse.Cloud.run("createPost2", opt);
+    await Parse.Cloud.run("createPost2", opt);
+    feed();
   };
 }
 
@@ -273,10 +294,11 @@ function setupBackBar(txt, btntext, btnaction) {
   var v = View.get().id.replace("doc", "");
   var s = document.querySelector("mobile-app").scrollTop;
   document.querySelector("#backheader").innerText = txt;
-  document.querySelector("#backsvg").onclick = ((v, s) => () => {
+  var c = ((v, s) => () => {
     View.switch(v, true);
     document.querySelector("mobile-app").scrollTop = s;
   })(v, s);
+  document.querySelector("#backsvg").onclick = c;
   if (btntext) {
     document.querySelector("#custombtnsvg").innerText = btntext;
     document.querySelector("#custombtnsvg").onclick = btnaction;
@@ -284,6 +306,7 @@ function setupBackBar(txt, btntext, btnaction) {
     document.querySelector("#custombtnsvg").innerText = "";
     delete document.querySelector("#custombtnsvg").onclick;
   }
+  return c;
 }
 
 async function loadPost(post, user) {
@@ -619,7 +642,6 @@ async function loadPosts(posts, date) {
       }
       post.appendChild(h);
       document.querySelector("#post").appendChild(post);
-      document.querySelector("#commentsection").style.minHeight = "calc(100% - " + (h.clientHeight + 7) + "px)";
       document.querySelector("mobile-app").scrollTop = document.querySelector("mobile-app").scrollHeight;
 
       loadComments(undefined, id);
@@ -644,6 +666,7 @@ async function loadPosts(posts, date) {
 }
 
 async function loadComments(sub, id) {
+  document.querySelector("#commentsection").innerHTML = "";
   var comments = await Parse.Cloud.run("getComments", {c: sub, p: id});
   for (var i = 0; i < comments.c.length; i++) {
     comments.c[i] = unpackObject(comments.c[i]);
@@ -654,7 +677,7 @@ async function loadComments(sub, id) {
 
   for (var i = 0; i < comments.c.length; i++) {
     // comment data
-    var id = comments.c[i].id;
+    var sid = comments.c[i].id;
     var content = comments.c[i].t;
     var likes = comments.c[i].s;
     var replies = comments.c[i].q;
@@ -671,7 +694,7 @@ async function loadComments(sub, id) {
       loadProfile(id);
     })(comments.c[i].u.id);
     var comment = document.createElement("div");
-    comment.className = "comment comment-" + id;
+    comment.className = "comment comment-" + sid;
     var header = document.createElement("div");
     header.className = "cmtheader";
     var dpfp = document.createElement("img");
@@ -694,9 +717,10 @@ async function loadComments(sub, id) {
 
     var toolbar = document.createElement("div");
     toolbar.className = "cmttoolbar";
+
     var likeSvg = document.createElement("p");
-    likeSvg.className = comments.f.includes(id) ? "cmtcontainer glyph-full liked" : "cmtcontainer glyph-outline";
-    likeSvg.innerText = comments.f.includes(id) ? AppData.app.glyphs.liked : AppData.app.glyphs.like;
+    likeSvg.className = comments.f.includes(sid) ? "cmtcontainer glyph-full liked" : "cmtcontainer glyph-outline";
+    likeSvg.innerText = comments.f.includes(sid) ? AppData.app.glyphs.liked : AppData.app.glyphs.like;
     var like = document.createElement("p");
     likeSvg.onclick = ((innerSvg, id, like) => async () => {
       if (!innerSvg.classList.contains("liked")) {
@@ -714,14 +738,43 @@ async function loadComments(sub, id) {
       // unfavorite
       var r = await Parse.Cloud.run("favComment", {a: false, c: id, z: AppData.app.version.api[0]});
       like.innerText = r.s ?? 0;
-    })(likeSvg, id, like);
+    })(likeSvg, sid, like);
     like.className = "favcount";
     like.innerText = likes ?? 0;
     toolbar.appendChild(likeSvg);
+
+    Glyph.get("full").create("reply", toolbar).classList.add("cmtreplicon");
+    if (replies) {
+      var repl = document.createElement("p");
+      repl.className = "cmtreplies";
+      repl.innerText = replies + " REPL" + (replies > 1 ? "IES" : "Y");
+      toolbar.appendChild(repl);
+    }
+
     toolbar.appendChild(like);
     comment.appendChild(toolbar);
-
+    
+    comment.onclick = ((sid, id, sub) => () => {
+      if (sub) {
+        // reply (REPLY)
+        return;
+      }
+      loadComments(sid, id);
+    })(sid, id, sub);
     document.querySelector("#commentsection").appendChild(comment);
+  }
+
+  document.querySelector("#commentadd").onclick = async () => {
+    var v = document.querySelector("#commentin").value;
+    document.querySelector("#commentin").value = "";
+    await Parse.Cloud.run("createComment", {
+      z: AppData.app.version.app[0],
+      p: id,
+      t: v,
+      c: sub,
+      // r: (REPLY)
+    });
+    if (View.ensure("post")) loadComments(sub, id);
   }
 }
 
@@ -844,10 +897,12 @@ function profileLoaded() {
 
   document.querySelector("#pc_si_image").onclick = () => postCreation(0);
   document.querySelector("#pc_si_camera").onclick = () => alert("Coming soon!");
-  document.querySelector("#pc_si_story").onclick = () => alert("Coming soon!"); //postCreation(1);
+  document.querySelector("#pc_si_story").onclick = () => postCreation(1);
   document.querySelector("#pc_si_poll").onclick = () => alert("Coming soon!");
   document.querySelector("#pc_si_video").onclick = () => alert("Coming soon!");
   document.querySelector("#pc_si_comic").onclick = () => alert("Coming soon!");
+
+  document.querySelector("#commentpfp").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
 }
 
 function checkMobile() {

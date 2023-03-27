@@ -3,6 +3,8 @@
 My favorite error. It usually has to do with leaving out the app version ID (parameter `z`).
 - `{code: 141, error: "Text or title required!"}`  
 The content and title are empty. Related to creating posts.
+- `{code: 141, error: "You can't reply to deleted comments!"}`
+Yes, I tried replying to a deleted comment. Luckily you can't, however you can still like deleted comments.
 - `{code: 142, error: "Incorrect text data"}`  
 The content or title is not long enough. Related to creating posts.
 - `{code: 142, error: "Categories are wrong"}`  
@@ -56,33 +58,33 @@ Likes or unlikes a comment.
 
 # FUNC: createPost2 (Story, u = 1)
 Creates a story post.
-1. `c`: Array of category indexes (can not be empty)
-2. (optional) `e`: Original artist / copyright
-3. (optional) `f`: Title
-4. (optional) `g`: Content
-5. (optional) `i`: Description
-6. `r`: Rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
-7. (optional) `s`: Link to source
-8. `t`: Array of tag strings (or an empty array)
+1. `c`: array of category indexes (can not be empty)
+2. (optional) `e`: original artist / copyright
+3. (optional) `f`: title
+4. (optional) `g`: content
+5. (optional) `i`: description
+6. `r`: rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+7. (optional) `s`: link to source
+8. `t`: array of tag strings (or an empty array)
 9. `u`: 1 (for story post)
-10. (optional) `x`: Wether to hide the post from new
+10. (optional) `x`: wether to hide the post from new
 11. `z`: app version ID
 
 # FUNC: createPost2 (Image/GIF, u = 0)
 Creates an image post.
-1. `c`: Array of category indexes (can not be empty)
-2. (optional) `e`: Original artist / copyright
-3. (optional) `f`: Title
-4. (optional) `g`: Content
-5. (optional) `i`: Description
-6. `r`: Rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
-7. (optional) `s`: Link to source
-8. `t`: Array of tag strings (or an empty array)
+1. `c`: array of category indexes (can not be empty)
+2. (optional) `e`: original artist / copyright
+3. (optional) `f`: title
+4. (optional) `g`: content
+5. (optional) `i`: description
+6. `r`: rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
+7. (optional) `s`: link to source
+8. `t`: array of tag strings (or an empty array)
 9. `u`: 1 (for story post)
-10. (optional) `x`: Wether to hide the post from new
-11. (optional) `a`: Unknown, appears to be 284 for my installation
-12. (optional) `b`: Unknown, appears to be 447 for my installation
-13. `h`: A JSON structure, along the lines of:
+10. (optional) `x`: wether to hide the post from new
+11. (optional) `a`: image width
+12. (optional) `b`: image height
+13. `h`: a JSON structure, along the lines of:
 ```
 {
     "__type": "File",
@@ -90,7 +92,7 @@ Creates an image post.
     "url": fileUrl
 }
 ```
-14. `l`: Wether to prevent downloads
+14. `l`: wether to prevent downloads
 15. `z`: app version ID
 
 # FUNC: deletePost
@@ -99,6 +101,13 @@ Deletes a post.
 
 # FUNC: getQuota
 Gets the quota.
+
+# FUNC: createComment
+Comments on a post.
+1. `p`: post object ID
+2. `t`: comment text
+3. (optional) `c`: replies to a top level comment
+4. (optional) `r`: replies to a bottom level comment (must still include the `c` parameter)
 
 # IMG UPLOAD
 Use Parse SDK to upload an image with filename `{app version ID}_{profile object ID}.jpg`.  
