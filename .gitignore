@@ -1,3 +1,5 @@
 node_modules
 cap.md
 sicor.js
+deploy.cmd
+pull.cmd

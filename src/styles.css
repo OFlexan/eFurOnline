@@ -941,6 +941,8 @@ div#pc_select {
   font-size: 18px;
   position: absolute;
   max-width: 90%;
+  
+  min-width: 400px;
   padding: 0 5%;
   bottom: 0;
   left: 50%;
