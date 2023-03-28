@@ -1,9 +1,38 @@
+<table>
+  <tr>
+      <th>Request or response</th>
+      <th>Type</th>
+      <th>Description</th>
+  <tr>
+      <th rowspan="1">Request</th>
+      <td>Object</td>
+      <td>App version</td>
+  </tr>
+  <tr>
+      <th rowspan="1">Response</th>
+      <td>Integer</td>
+  </tr>
+</table>
+<table>
+  <tr>
+      <th rowspan="2">Yes</th>
+      <th>Yes</th>
+      <td>Ok</td>
+  </tr>
+  <tr>
+      <th>Yes</th>
+      <td>Ok</td>
+  </tr>
+</table>
+
+
+
 # ERRORS
 - `{code: 141, error: "no"}`  
 My favorite error. It usually has to do with leaving out the app version ID (parameter `z`).
 - `{code: 141, error: "Text or title required!"}`  
 The content and title are empty. Related to creating posts.
-- `{code: 141, error: "You can't reply to deleted comments!"}`
+- `{code: 141, error: "You can't reply to deleted comments!"}`  
 Yes, I tried replying to a deleted comment. Luckily you can't, however you can still like deleted comments.
 - `{code: 142, error: "Incorrect text data"}`  
 The content or title is not long enough. Related to creating posts.
@@ -80,7 +109,7 @@ Creates an image post.
 6. `r`: rating, 0 = SAFE, 1 = SUGGESTIVE, 2 = EXPLICIT
 7. (optional) `s`: link to source
 8. `t`: array of tag strings (or an empty array)
-9. `u`: 1 (for story post)
+9. `u`: 0 (for image post)
 10. (optional) `x`: wether to hide the post from new
 11. (optional) `a`: image width
 12. (optional) `b`: image height
@@ -92,7 +121,7 @@ Creates an image post.
     "url": fileUrl
 }
 ```
-14. `l`: wether to prevent downloads
+14. (optional) `l`: wether to prevent downloads
 15. `z`: app version ID
 
 # FUNC: deletePost
