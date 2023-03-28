@@ -796,9 +796,9 @@ async function loadProfile(id) {
     document.querySelector("mobile-app").scrollTop = s;
   })(v, s);
   view.querySelector(".dp_name").innerText = profile.u;
-  view.querySelectorAll(".dp_count")[0].innerText = profile.c;
-  view.querySelectorAll(".dp_count")[1].innerText = profile.d;
-  view.querySelectorAll(".dp_count")[2].innerText = profile.h;
+  view.querySelectorAll(".dp_count")[0].innerText = profile.c ?? 0;
+  view.querySelectorAll(".dp_count")[1].innerText = profile.d ?? 0;
+  view.querySelectorAll(".dp_count")[2].innerText = profile.h ?? 0;
   view.querySelector(".dp_member").innerText = "MEMBER FOR " + formatDate(Date.now() - profile.s, 2).toUpperCase();
   registerSelectionbar(view.querySelector(".selectionbar"));
 }
@@ -865,6 +865,7 @@ function profileLoaded() {
   document.querySelector(".smfg").src = AppData.user.i ? AppData.user.i.p : "resources/user_icon.png";
   document.querySelector(".smbg").onclick = c;
   document.querySelector(".smfg").onclick = c;
+  document.querySelector(".smname").innerText = AppData.user.username;
   document.querySelector(".smname").onclick = c;
   
   var s = document.querySelector(".sm_switch .switch");
