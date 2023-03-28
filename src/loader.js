@@ -32,7 +32,7 @@ for (var i = 0; i < expands.length; i++) expands[i].addEventListener("input", ((
     version: {
       app: [94, "1.19.1"],
       api: [94, "1.19.1"],
-      web: [3, "1.2"]
+      web: [4, "1.3"]
     },
     glyphs: {
       favorite: Glyph.get("outline").getString("favorite_border"),

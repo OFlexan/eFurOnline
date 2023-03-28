@@ -671,8 +671,6 @@ async function loadComments(sub, id) {
   for (var i = 0; i < comments.c.length; i++) {
     comments.c[i] = unpackObject(comments.c[i]);
     comments.c[i].u = unpackObject(comments.c[i].u);
-    if (comments.f.includes(comments.c[i].id)) comments.c[i].fav = true;
-    else comments.c[i].fav = false;
   }
 
   for (var i = 0; i < comments.c.length; i++) {
@@ -683,11 +681,10 @@ async function loadComments(sub, id) {
     var replies = comments.c[i].q;
     var created = comments.c[i].createdAt;
     var updated = comments.c[i].updatedAt;
-    var liked = comments.c[i].fav;
 
     // user data
-    var pfp = comments.c[i].u.i ? comments.c[i].u.i.t : "resources/user_icon.png";
-    var name = comments.c[i].u.username;
+    var pfp = content != null && comments.c[i].u.i ? comments.c[i].u.i.t : "resources/user_icon.png";
+    var name = content != null ? comments.c[i].u.username : "User";
 
     // comment
     var userclick = ((id) => () => {

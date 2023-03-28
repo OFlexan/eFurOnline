@@ -25,13 +25,8 @@
 24. Reporting (I hope I don't get banned for false reporting while testing)
 25. Add cropping to post creation (images)
 
-# Needed
-1. ~~Favorite function~~
-2. ~~Post function~~
-3. Message related functions
-
-# 2 (done)
-For example, choosing 2 options on a vote in the app returns 50% and 50%, while the web version shows 100% and 100%.
+# 2
+~~For example, choosing 2 options on a vote in the app returns 50% and 50%, while the web version shows 100% and 100%.~~
 
 # 13
 See item 21.
