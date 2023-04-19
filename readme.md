@@ -1,3 +1,6 @@
+# Outdated
+Please head over to [eFurWeb](https://github.com/OFlexan/eFurWeb) instead. It is the newer (and better) version of the app.
+
 # eFurOnline
 Web recreation of eFur. This project is currently in development.  
 For bugs and feedback, create an issue.
